@@ -28,7 +28,7 @@ Kakeibo wurde 1904 von der japanischen Journalistin Hani Motoko entwickelt. Die 
 ### Funktionen
 
 - **Monatsplan:** Einnahmen, Fixkosten und Sparziel eintragen und sehen, wie viel frei verfügbar ist.
-- **Vier Kategorien:** Überleben 生, Optional 選, Kultur 文 und Extras 外.
+- **Vier Kategorien mit Pixel-Icons:** Überleben 🍎, Optional 🛍️, Kultur 📕 und Extras ⚡.
 - **Übersicht:** Ausgegebenes, verbleibendes Budget pro Tag und eine Hochrechnung bis Monatsende.
 - **Woche für Woche:** Ausgaben pro Woche, wie es die Kakeibo-Methode vorsieht.
 - **Spartipps:** Die App erkennt zum Beispiel Lieferdienste, Abos, Kaffee unterwegs oder Verträge und gibt passende Hinweise.
@@ -77,7 +77,7 @@ Kakeibo was created in 1904 by Japanese journalist Hani Motoko. The idea: if you
 ### Features
 
 - **Monthly plan:** enter income, fixed costs and a savings goal, and see what is free to spend.
-- **Four categories:** Survival 生, Optional 選, Culture 文 and Extras 外.
+- **Four categories with pixel icons:** Survival 🍎, Optional 🛍️, Culture 📕 and Extras ⚡.
 - **Overview:** money spent, budget left per day and a month-end forecast.
 - **Week by week:** spending per week, as the Kakeibo method suggests.
 - **Saving tips:** the app spots things like food delivery, subscriptions, coffee on the go or contracts and gives matching advice.

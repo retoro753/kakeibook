@@ -92,7 +92,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
 .cats{position:relative}
 .cats input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
 .cats label{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--rule);border-radius:8px;cursor:pointer;font-size:.72rem;color:var(--ink-soft);text-align:center}
-.cats label b{font-size:1.25rem;color:var(--cc);font-weight:400}
+.px{display:block;flex:none;shape-rendering:crispEdges}
+.cats label .px{width:26px;height:26px;margin-bottom:2px}
 .cats input:checked+label{border-color:var(--cc);box-shadow:inset 0 0 0 1px var(--cc);color:var(--ink)}
 .cats input:focus-visible+label{outline:2px solid var(--hanko);outline-offset:2px}
 .btn{background:var(--ink);color:var(--sheet);border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
@@ -116,7 +117,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
 .catgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 @media (max-width:620px){.catgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .cat{border-top:3px solid var(--cc);padding-top:8px;display:flex;flex-direction:column;gap:2px}
-.cat .cat-icon{font-size:1.6rem;line-height:1.1}
+.cat .px{width:32px;height:32px;margin-bottom:4px}
 .cat .name{font-weight:700;font-size:.9rem}
 .cat .num{font-size:1.05rem}
 .cat small{color:var(--ink-soft);font-size:.75rem}
@@ -144,7 +145,7 @@ th{text-align:left;font-weight:500;color:var(--ink-soft);font-size:.72rem;letter
 td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
 td.amt,th.amt{text-align:right}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:.78rem}
-.tag b{color:var(--cc);font-weight:400}
+.tag .px{width:16px;height:16px}
 .rowact{display:flex;gap:4px;justify-content:flex-end}
 .mini{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:3px 8px;font-size:.75rem;cursor:pointer;white-space:nowrap}
 .mini:hover{border-color:var(--ink)}
@@ -160,7 +161,8 @@ td.amt,th.amt{text-align:right}
 /* Reflexion */
 .qlist{display:flex;flex-direction:column;gap:12px}
 .q{display:grid;grid-template-columns:auto 1fr;gap:10px}
-.q .no{font-family:var(--f-display);font-weight:800;color:var(--hanko);font-size:1.1rem;line-height:1.3}
+.q .no{display:block;width:18px;height:24px;margin-top:2px}
+.q .no .px{width:18px;height:24px}
 .q p{margin:0}
 .q .ans{color:var(--ink-soft);font-size:.88rem}
 .saved{font-size:.78rem;color:var(--ok);min-height:1.2em}
@@ -279,10 +281,10 @@ input,select,textarea{font-size:16px}
       <section class="sheet" aria-labelledby="refH">
         <div class="sheet-head"><h2 id="refH" data-i="refH"></h2><span class="label" data-i="refSub"></span></div>
         <div class="qlist">
-          <div class="q"><span class="no">1</span><div><p><b data-i="q1"></b></p><p class="ans" id="a1"></p></div></div>
-          <div class="q"><span class="no">2</span><div><p><b data-i="q2"></b></p><p class="ans" id="a2"></p></div></div>
-          <div class="q"><span class="no">3</span><div><p><b data-i="q3"></b></p><p class="ans" id="a3"></p></div></div>
-          <div class="q"><span class="no">4</span><div class="field"><label for="reflect"><b style="color:var(--ink);font-size:.95rem" data-i="q4"></b></label>
+          <div class="q"><span class="no" data-n="1" aria-hidden="true"></span><div><p><b data-i="q1"></b></p><p class="ans" id="a1"></p></div></div>
+          <div class="q"><span class="no" data-n="2" aria-hidden="true"></span><div><p><b data-i="q2"></b></p><p class="ans" id="a2"></p></div></div>
+          <div class="q"><span class="no" data-n="3" aria-hidden="true"></span><div><p><b data-i="q3"></b></p><p class="ans" id="a3"></p></div></div>
+          <div class="q"><span class="no" data-n="4" aria-hidden="true"></span><div class="field"><label for="reflect"><b style="color:var(--ink);font-size:.95rem" data-i="q4"></b></label>
             <textarea id="reflect" data-i-ph="reflectPh"></textarea>
             <button class="btn ghost" id="saveReflect" style="align-self:flex-start" data-i="saveNote"></button>
             <div class="saved" id="reflectSaved" aria-live="polite"></div>
@@ -331,7 +333,7 @@ de:{
   addH:"Ausgabe eintragen",what:"Wofür?",whatPh:"z. B. Wocheneinkauf Supermarkt",amount:"Betrag",date:"Datum",category:"Kategorie",addBtn:"Eintragen",
   ovH:"Übersicht",spent:"Ausgegeben",left:"Noch verfügbar",proj:"Hochrechnung Monatsende",budgetBar:"Verteilung der Ausgaben im Verhältnis zum verfügbaren Budget",
   entries:n=>n+(n===1?" Eintrag":" Einträge"),perDay:a=>"≈ "+a+" pro Tag übrig",fillPlan:"Monatsplan ausfüllen",
-  backupShortcut:"Daten sichern",versionLink:"Version 1.1",
+  backupShortcut:"Daten sichern",versionLink:"Version 1.2",
   over:a=>"überschreitet Budget um "+a,under:a=>"bleibt "+a+" unter Budget",
   stNoPlan:"Kein Plan",stOver:"Budget überschritten",stFast:"Tempo zu hoch",stOk:"Im Rahmen",
   wkH:"Woche für Woche",wkSub:"Kakeibo rechnet wöchentlich ab",week:i=>"Woche "+i,range:(a,b)=>a+".–"+b+".",
@@ -379,7 +381,7 @@ en:{
   addH:"Add an expense",what:"What for?",whatPh:"e.g. weekly groceries",amount:"Amount",date:"Date",category:"Category",addBtn:"Add",
   ovH:"Overview",spent:"Spent",left:"Still available",proj:"Month-end forecast",budgetBar:"Spending by category compared with the available budget",
   entries:n=>n+(n===1?" entry":" entries"),perDay:a=>"≈ "+a+" left per day",fillPlan:"Fill in your monthly plan",
-  backupShortcut:"Back up data",versionLink:"Version 1.1",
+  backupShortcut:"Back up data",versionLink:"Version 1.2",
   over:a=>"over budget by "+a,under:a=>a+" under budget",
   stNoPlan:"No plan",stOver:"Over budget",stFast:"Spending too fast",stOk:"On track",
   wkH:"Week by week",wkSub:"Kakeibo balances the books weekly",week:i=>"Week "+i,range:(a,b)=>a+"–"+b,
@@ -445,7 +447,77 @@ function setupLang(){
 }
 const eur={format:v=>money.format(v)};
 
-const CATS={surv:{icon:"🛒",color:"--c-surv"},opt:{icon:"🛍️",color:"--c-opt"},cult:{icon:"📚",color:"--c-cult"},extra:{icon:"🎁",color:"--c-extra"}};
+// ================= Pixel-Icons =================
+// Jede Zeile ist eine Pixelreihe. Zeichen: # = Kategoriefarbe, o = dunkle Tinte, + = helles Papier, . = leer.
+const SPRITES={
+  surv:[ // Apfel
+    "......oo....",
+    ".....o......",
+    "...##o.##...",
+    "..########..",
+    ".##########.",
+    ".#+########.",
+    ".#+########.",
+    ".##########.",
+    ".##########.",
+    "..########..",
+    "...######...",
+    "....#..#...."],
+  opt:[ // Einkaufstasche
+    "............",
+    "....oooo....",
+    "...o....o...",
+    "...o....o...",
+    ".##########.",
+    ".#+########.",
+    ".#+########.",
+    ".##########.",
+    ".##########.",
+    ".##########.",
+    ".##########.",
+    ".##########."],
+  cult:[ // Buch
+    "............",
+    ".o#########.",
+    ".o#########.",
+    ".o##+++++##.",
+    ".o#########.",
+    ".o##+++++##.",
+    ".o#########.",
+    ".o#########.",
+    ".o#########.",
+    ".o#########.",
+    ".o+++++++++.",
+    ".oooooooooo."],
+  extra:[ // Blitz
+    "......####..",
+    ".....####...",
+    "....####....",
+    "...####.....",
+    "..########..",
+    "......###...",
+    ".....###....",
+    "....###.....",
+    "...###......",
+    "..##........",
+    ".##.........",
+    "............"]
+};
+const DIGITS={
+  1:["..#..",".##..","..#..","..#..","..#..","..#..",".###."],
+  2:[".###.","#...#","....#","...#.","..#..",".#...","#####"],
+  3:["####.","....#","....#",".###.","....#","....#","####."],
+  4:["...#.","..##.",".#.#.","#..#.","#####","...#.","...#."]
+};
+const PXFILL={"#":"currentColor","o":"var(--ink)","+":"var(--sheet)"};
+function pixel(rows,color){
+  let r="";
+  rows.forEach((row,y)=>{let x=0;while(x<row.length){const ch=row[x];if(!PXFILL[ch]){x++;continue}
+    let w=1;while(row[x+w]===ch)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${PXFILL[ch]}"/>`;x+=w}});
+  return `<svg class="px" viewBox="0 0 ${rows[0].length} ${rows.length}" style="color:var(${color})" aria-hidden="true">${r}</svg>`;
+}
+const CATS={surv:{color:"--c-surv"},opt:{color:"--c-opt"},cult:{color:"--c-cult"},extra:{color:"--c-extra"}};
+Object.keys(CATS).forEach(c=>CATS[c].k=pixel(SPRITES[c],CATS[c].color));
 const ORDER=["surv","opt","cult","extra"];
 const cName=c=>T.cats[c][0], cDesc=c=>T.cats[c][1];
 const $=id=>document.getElementById(id);
@@ -485,9 +557,9 @@ function view(){
 
 // ================= Darstellung =================
 function catPicker(selected){
-  $("catPick").innerHTML=ORDER.map(c=>`<input type="radio" name="cat" id="cat_${c}" value="${c}" ${c===selected?"checked":""}><label for="cat_${c}" style="--cc:var(${CATS[c].color})"><b aria-hidden="true">${CATS[c].icon}</b>${cName(c)}</label>`).join("");
+  $("catPick").innerHTML=ORDER.map(c=>`<input type="radio" name="cat" id="cat_${c}" value="${c}" ${c===selected?"checked":""}><label for="cat_${c}" style="--cc:var(${CATS[c].color})">${CATS[c].k}${cName(c)}</label>`).join("");
   const f=$("filterCat").value;
-  $("filterCat").innerHTML=`<option value="">${T.allCats}</option>`+ORDER.map(c=>`<option value="${c}">${CATS[c].icon} ${cName(c)}</option>`).join("");
+  $("filterCat").innerHTML=`<option value="">${T.allCats}</option>`+ORDER.map(c=>`<option value="${c}">${cName(c)}</option>`).join("");
   $("filterCat").value=f||"";
 }
 
@@ -532,7 +604,7 @@ function render(){
 
   $("catGrid").innerHTML=ORDER.map(c=>{
     const pct=spent?Math.round(byCat[c]/spent*100):0;
-    return `<div class="cat" style="--cc:var(${CATS[c].color})"><span class="cat-icon" aria-hidden="true">${CATS[c].icon}</span><span class="name">${cName(c)}</span><span class="num">${eur.format(byCat[c])}</span><small>${pct}${lang==="de"?" %":"%"} · ${cDesc(c)}</small></div>`}).join("");
+    return `<div class="cat" style="--cc:var(${CATS[c].color})">${CATS[c].k}<span class="name">${cName(c)}</span><span class="num">${eur.format(byCat[c])}</span><small>${pct}${lang==="de"?" %":"%"} · ${cDesc(c)}</small></div>`}).join("");
 
   const wk=[0,0,0,0,0].map(()=>({t:0,c:{}}));
   list.forEach(e=>{const w=Math.min(4,Math.floor((+e.date.slice(8,10)-1)/7));wk[w].t+=e.amt;wk[w].c[e.cat]=(wk[w].c[e.cat]||0)+e.amt});
@@ -583,7 +655,7 @@ function renderRows(list){
   r.sort(s==="amt"?(a,b)=>b.amt-a.amt:(a,b)=>b.date.localeCompare(a.date));
   if(!r.length){$("rows").innerHTML=`<tr><td colspan="5" class="empty">${T.noRows}</td></tr>`;return}
   $("rows").innerHTML=r.map(e=>{const c=CATS[e.cat]?e.cat:"extra";
-    return `<tr><td class="num">${dayMonth.format(new Date(e.date+"T00:00:00Z"))}</td><td>${esc(e.desc)}${e.example?`<span class="ex">${T.example}</span>`:""}</td><td><span class="tag" style="--cc:var(${CATS[c].color})"><b aria-hidden="true">${CATS[c].icon}</b>${cName(c)}</span></td><td class="amt num">${eur.format(e.amt)}</td><td><div class="rowact">${e.example?"":`<button class="mini del" data-del="${esc(e.id)}" aria-label="${T.delAria}">${T.del}</button>`}</div></td></tr>`}).join("");
+    return `<tr><td class="num">${dayMonth.format(new Date(e.date+"T00:00:00Z"))}</td><td>${esc(e.desc)}${e.example?`<span class="ex">${T.example}</span>`:""}</td><td><span class="tag" style="--cc:var(${CATS[c].color})">${CATS[c].k}${cName(c)}</span></td><td class="amt num">${eur.format(e.amt)}</td><td><div class="rowact">${e.example?"":`<button class="mini del" data-del="${esc(e.id)}" aria-label="${T.delAria}">${T.del}</button>`}</div></td></tr>`}).join("");
 }
 
 // ================= Interaktion =================
@@ -629,6 +701,7 @@ $("rows").addEventListener("click",async ev=>{
 });
 
 // ================= Start =================
+document.querySelectorAll(".q .no[data-n]").forEach(el=>{el.innerHTML=pixel(DIGITS[el.dataset.n],"--hanko")});
 lsLoad();loaded=true;render();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 
