@@ -295,7 +295,7 @@ input,select,textarea{font-size:16px}
       <summary>Info</summary>
       <div class="info">
         <p data-i="infoAbout"></p>
-        <p><span data-i="infoBy"></span> <span id="devName">(Name folgt)</span></p>
+        <p><span data-i="infoBy"></span> <span id="devName">Retoro</span></p>
         <p data-i="infoPrivacy"></p>
         <p class="label" style="margin-top:6px" data-i="backupH"></p>
         <p class="hint" data-i="backupHint"></p>
@@ -309,7 +309,6 @@ input,select,textarea{font-size:16px}
         <p class="hint" data-i="noAdvice"></p>
       </div>
     </details>
-    <nav class="links" data-i-aria="legal"><a id="linkImprint" href="impressum.html"></a><a id="linkPrivacy" href="datenschutz.html"></a></nav>
   </footer>
 </div>
 
@@ -346,7 +345,7 @@ de:{
   exportBtn:"Sicherung speichern",importBtn:"Sicherung einlesen",csvBtn:"Als Tabelle (CSV)",noAdvice:"KakeiboOK gibt Tipps, ersetzt aber keine Finanzberatung.",
   noData:"Noch keine eigenen Daten zum Sichern.",noExp:"Noch keine eigenen Ausgaben vorhanden.",backupDone:"Sicherung erstellt.",csvDone:"Tabelle erstellt.",
   imported:n=>n+" Ausgaben eingelesen.",badFile:"Diese Datei ist keine KakeiboOK-Sicherung.",backupName:"Sicherung",csvName:"Ausgaben",
-  csvHead:["Datum","Beschreibung","Kategorie","Betrag"],legal:"Rechtliches",imprint:"Impressum",privacy:"Datenschutz",
+  csvHead:["Datum","Beschreibung","Kategorie","Betrag"],
   cats:{surv:["Überleben","Lebensmittel, Drogerie, Fahrkarten"],opt:["Optional","Essen gehen, Shopping, Lieferdienste"],cult:["Kultur","Bücher, Kino, Kurse, Museen"],extra:["Extras","Unerwartetes: Reparaturen, Geschenke"]},
   ex:["Wocheneinkauf Supermarkt","Monatsticket Nahverkehr","Lieferdienst Pizza","Streaming-Abo","Kaffee to go (5×)","Taschenbuch","Wocheneinkauf Supermarkt","Tanken","Sneaker im Sale","Fahrradreparatur","Kino","Drogerie"],
   tips:{
@@ -393,7 +392,7 @@ en:{
   exportBtn:"Save backup",importBtn:"Restore backup",csvBtn:"Export as table (CSV)",noAdvice:"KakeiboOK gives tips, not financial advice.",
   noData:"No data of your own to back up yet.",noExp:"No expenses of your own yet.",backupDone:"Backup created.",csvDone:"Table created.",
   imported:n=>n+" expenses restored.",badFile:"This file is not a KakeiboOK backup.",backupName:"Backup",csvName:"Expenses",
-  csvHead:["Date","Description","Category","Amount"],legal:"Legal",imprint:"Legal notice",privacy:"Privacy",
+  csvHead:["Date","Description","Category","Amount"],
   cats:{surv:["Survival","Groceries, toiletries, transport"],opt:["Optional","Eating out, shopping, delivery"],cult:["Culture","Books, cinema, courses, museums"],extra:["Extras","Unexpected: repairs, gifts"]},
   ex:["Weekly groceries","Monthly transit pass","Pizza delivery","Streaming subscription","Coffee to go (5×)","Paperback","Weekly groceries","Fuel","Sneakers on sale","Bike repair","Cinema","Toiletries"],
   tips:{
@@ -435,8 +434,6 @@ function setupLang(){
   document.querySelectorAll("[data-i-aria]").forEach(el=>el.setAttribute("aria-label",T[el.dataset.iAria]));
   document.querySelectorAll("[data-i-ph]").forEach(el=>el.placeholder=T[el.dataset.iPh]);
   $("amtLabel").textContent=T.amount+" ("+(money.formatToParts(0).find(p=>p.type==="currency")||{value:currency}).value+")";
-  $("linkImprint").textContent=T.imprint;$("linkImprint").href=lang==="de"?"impressum.html":"legal-notice.html";
-  $("linkPrivacy").textContent=T.privacy;$("linkPrivacy").href=lang==="de"?"datenschutz.html":"privacy.html";
   $("langDe").setAttribute("aria-pressed",lang==="de");$("langEn").setAttribute("aria-pressed",lang==="en");
   $("currency").value=currency;
   const sel=document.querySelector('input[name="cat"]:checked');catPicker(sel?sel.value:"surv");

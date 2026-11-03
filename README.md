@@ -10,11 +10,11 @@
 
 ---
 
-## Deutsch
+## Deutsch 🇩🇪
 
-**KakeiboOK** ist ein Haushaltsbuch nach der japanischen **Kakeibo-Methode** (家計簿, „Haushaltsbuch“). Der Name verbindet *Kakeibo* mit einem *OK* für deine Finanzen, und zusammen steckt darin auch ein *Book*.
+**KakeiboOK** ist ein Haushaltsbuch nach der japanischen **Kakeibo-Methode** (家計簿, „Haushaltsbuch“). Der Name verbindet *Kakeibo* mit einem *OK* für deine Finanzen – und zusammen ergibt sich darin auch das englische Wort *Book*.
 
-👉 **App öffnen:** https://retoro753.github.io/kakeibook/
+👉 **App öffnen:** https://retoro753.github.io/kakeibook/ (Web-App, nach dem ersten Öffnen auch offline nutzbar)
 
 ### Was ist Kakeibo?
 
@@ -50,7 +50,7 @@ Alle Einträge bleiben **ausschließlich auf deinem Gerät**. Es gibt kein Konto
 
 ### Technik
 
-Eine Progressive Web App (PWA) aus reinem HTML, CSS und JavaScript, ohne Frameworks und ohne externe Abhängigkeiten. Daten werden im `localStorage` des Browsers gespeichert, ein Service Worker sorgt für den Offline-Betrieb.
+Eine Progressive Web App (PWA) aus reinem HTML, CSS und JavaScript, **ohne Frameworks und ohne externe Abhängigkeiten**. Daten werden im `localStorage` des Browsers gespeichert, ein Service Worker sorgt für den Offline-Betrieb.
 
 ### Hinweis
 
@@ -103,5 +103,6 @@ A Progressive Web App (PWA) built with plain HTML, CSS and JavaScript, with no f
 
 ### Disclaimer
 
+```
 KakeiboOK offers general saving tips and is not financial advice.
 
