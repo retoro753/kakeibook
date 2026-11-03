@@ -1,9 +1,9 @@
 // KakeiboOK – Service Worker für den Offline-Betrieb.
 // Bei jeder neuen Version die Nummer erhöhen, damit Nutzer das Update bekommen.
-const VERSION = "kakeibook-1.1.0";
+const VERSION = "kakeibook-1.1.1";
 const FILES = [
   "./", "./index.html", "./manifest.webmanifest",
-  "./impressum.html", "./datenschutz.html", "./legal-notice.html", "./privacy.html",
+  "./versions_changelog.html",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"
 ];
 

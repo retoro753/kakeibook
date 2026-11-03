@@ -176,6 +176,8 @@ input,select,textarea{font-size:16px}
 .langsw button{border:0;background:var(--sheet);padding:0 10px;height:34px;cursor:pointer;font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
 .langsw button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
 .monthnav{flex-wrap:wrap}
+.version-link{color:inherit;text-decoration:none}
+.version-link:hover{text-decoration:underline}
 </style>
 </head>
 
@@ -191,6 +193,7 @@ input,select,textarea{font-size:16px}
       <button class="iconbtn" id="prevMonth" data-i-aria="prevMonth">‹</button>
       <strong id="monthLabel"></strong>
       <button class="iconbtn" id="nextMonth" data-i-aria="nextMonth">›</button>
+      <button class="btn ghost" id="openBackup" data-i="backupShortcut"></button>
       <div class="langsw" role="group" data-i-aria="language">
         <button id="langDe" lang="de">DE</button><button id="langEn" lang="en">EN</button>
       </div>
@@ -290,14 +293,14 @@ input,select,textarea{font-size:16px}
   </div>
 
   <footer>
-    <span class="flogo"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="6" width="42" height="52" rx="5" fill="var(--ink-soft)"/><rect x="45" y="6" width="4" height="52" fill="var(--hanko)"/></svg>KakeiboOK · Version 1.1</span>
-    <details>
+    <span class="flogo"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="6" width="42" height="52" rx="5" fill="var(--ink-soft)"/><rect x="45" y="6" width="4" height="52" fill="var(--hanko)"/></svg>KakeiboOK · <a class="version-link" href="versions_changelog.html" data-i="versionLink"></a></span>
+    <details id="infoDetails">
       <summary>Info</summary>
       <div class="info">
         <p data-i="infoAbout"></p>
         <p><span data-i="infoBy"></span> <span id="devName">Retoro</span></p>
         <p data-i="infoPrivacy"></p>
-        <p class="label" style="margin-top:6px" data-i="backupH"></p>
+        <p class="label" id="backupH" style="margin-top:6px" data-i="backupH"></p>
         <p class="hint" data-i="backupHint"></p>
         <div class="backup">
           <button class="mini" id="exportBtn" data-i="exportBtn"></button>
@@ -328,6 +331,7 @@ de:{
   addH:"Ausgabe eintragen",what:"Wofür?",whatPh:"z. B. Wocheneinkauf Supermarkt",amount:"Betrag",date:"Datum",category:"Kategorie",addBtn:"Eintragen",
   ovH:"Übersicht",spent:"Ausgegeben",left:"Noch verfügbar",proj:"Hochrechnung Monatsende",budgetBar:"Verteilung der Ausgaben im Verhältnis zum verfügbaren Budget",
   entries:n=>n+(n===1?" Eintrag":" Einträge"),perDay:a=>"≈ "+a+" pro Tag übrig",fillPlan:"Monatsplan ausfüllen",
+  backupShortcut:"Daten sichern",versionLink:"Version 1.1",
   over:a=>"überschreitet Budget um "+a,under:a=>"bleibt "+a+" unter Budget",
   stNoPlan:"Kein Plan",stOver:"Budget überschritten",stFast:"Tempo zu hoch",stOk:"Im Rahmen",
   wkH:"Woche für Woche",wkSub:"Kakeibo rechnet wöchentlich ab",week:i=>"Woche "+i,range:(a,b)=>a+".–"+b+".",
@@ -375,6 +379,7 @@ en:{
   addH:"Add an expense",what:"What for?",whatPh:"e.g. weekly groceries",amount:"Amount",date:"Date",category:"Category",addBtn:"Add",
   ovH:"Overview",spent:"Spent",left:"Still available",proj:"Month-end forecast",budgetBar:"Spending by category compared with the available budget",
   entries:n=>n+(n===1?" entry":" entries"),perDay:a=>"≈ "+a+" left per day",fillPlan:"Fill in your monthly plan",
+  backupShortcut:"Back up data",versionLink:"Version 1.1",
   over:a=>"over budget by "+a,under:a=>a+" under budget",
   stNoPlan:"No plan",stOver:"Over budget",stFast:"Spending too fast",stOk:"On track",
   wkH:"Week by week",wkSub:"Kakeibo balances the books weekly",week:i=>"Week "+i,range:(a,b)=>a+"–"+b,
@@ -586,6 +591,11 @@ $("eDate").value=localISO(today);
 setupLang();
 $("langDe").onclick=()=>{lang="de";saveSettings();setupLang();render()};
 $("langEn").onclick=()=>{lang="en";saveSettings();setupLang();render()};
+$("openBackup").onclick=()=>{
+  $("infoDetails").open=true;
+  $("backupH").scrollIntoView({behavior:"smooth",block:"center"});
+  $("exportBtn").focus({preventScroll:true});
+};
 $("currency").onchange=()=>{currency=$("currency").value;saveSettings();setupLang();render()};
 $("prevMonth").onclick=()=>{cur.m--;if(cur.m<0){cur.m=11;cur.y--}render()};
 $("nextMonth").onclick=()=>{cur.m++;if(cur.m>11){cur.m=0;cur.y++}render()};

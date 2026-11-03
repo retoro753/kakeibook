@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1f2b4a">
+<title>Versionen und Funktionen · KakeiboOK</title>
+<style>
+:root{color-scheme:light dark;--paper:#eef1f2;--sheet:#f9fafa;--ink:#1f2b4a;--soft:#56627d;--rule:#d3d9e0;--accent:#c2412d}
+@media(prefers-color-scheme:dark){:root{--paper:#141821;--sheet:#1b202b;--ink:#e3e7ef;--soft:#9aa4b8;--rule:#2c3342;--accent:#e2664f}}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 48px;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+h1,h2{line-height:1.25}
+h1{font-size:1.7rem;margin:0}
+h2{font-size:1.2rem;margin:0}
+.lang{display:flex;gap:4px}
+button,.back{font:inherit;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:7px;padding:6px 10px;text-decoration:none;cursor:pointer}
+button[aria-pressed=true]{background:var(--ink);color:var(--sheet)}
+section{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:20px;margin:16px 0}
+.version{color:var(--soft);font-size:.9rem;margin:4px 0 12px}
+ul{padding-left:22px;margin:12px 0}
+li{margin:7px 0}
+.hint{color:var(--soft);font-size:.92rem}
+a{color:var(--accent)}
+.back{display:inline-block;margin-top:8px}
+[hidden]{display:none!important}
+@media(max-width:480px){header{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>KakeiboOK</h1>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang-button="de" aria-pressed="true">DE</button>
+      <button type="button" data-lang-button="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <section data-lang="de">
+    <h2>Versionen und Funktionen</h2>
+    <p class="version">Version 1.1</p>
+    <ul>
+      <li>Monat planen: Einnahmen, Fixkosten und Sparziel eintragen.</li>
+      <li>Ausgaben eintragen und nach Kategorien ordnen.</li>
+      <li>Monatsübersicht, Wochenverlauf und Hinweise zum Budget ansehen.</li>
+      <li>Den Monat mit den vier Fragen der Kakeibo-Methode reflektieren.</li>
+      <li>Daten als Sicherungsdatei exportieren, wieder einlesen oder als CSV-Tabelle speichern.</li>
+      <li>Die App funktioniert auch offline. Deine Einträge bleiben auf diesem Gerät.</li>
+    </ul>
+    <p class="hint">Über „Daten sichern“ oben in der App kommst du direkt zu den Optionen zum Sichern und Einlesen.</p>
+    <a class="back" href="index.html">Zurück zu KakeiboOK</a>
+  </section>
+  <section data-lang="en" hidden>
+    <h2>Versions and features</h2>
+    <p class="version">Version 1.1</p>
+    <ul>
+      <li>Plan each month with income, fixed costs, and a savings goal.</li>
+      <li>Record expenses and organize them by category.</li>
+      <li>Review monthly totals, weekly spending, and budget guidance.</li>
+      <li>Reflect on the month using the four Kakeibo questions.</li>
+      <li>Export a backup, restore from a backup, or save expenses as a CSV table.</li>
+      <li>The app works offline. Your entries stay on this device.</li>
+    </ul>
+    <p class="hint">Choose “Back up data” at the top of the app to open the backup and restore options.</p>
+    <a class="back" href="index.html">Back to KakeiboOK</a>
+  </section>
+</main>
+<script>
+const buttons=document.querySelectorAll("[data-lang-button]");
+const sections=document.querySelectorAll("[data-lang]");
+function setLanguage(lang){
+  document.documentElement.lang=lang;
+  sections.forEach(section=>{section.hidden=section.dataset.lang!==lang});
+  buttons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.langButton===lang)));
+}
+buttons.forEach(button=>button.addEventListener("click",()=>setLanguage(button.dataset.langButton)));
+try{
+  const saved=JSON.parse(localStorage.getItem("kakeibook-settings")||"{}").lang;
+  if(saved==="en")setLanguage("en");
+}catch(e){}
+</script>
+</body>
+</html>

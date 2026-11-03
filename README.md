@@ -59,7 +59,7 @@ KakeiboOK gibt allgemeine Spartipps und ersetzt keine Finanzberatung.
 
 ---
 
-## English
+## English 🇬🇧
 
 **KakeiboOK** is a household ledger based on the Japanese **Kakeibo method** (家計簿, "household account book"). The name combines *Kakeibo* with an *OK* for your finances, and together it also spells *Book*.
 
