@@ -14,7 +14,7 @@
 
 **KakeiboOK** ist ein Haushaltsbuch nach der japanischen **Kakeibo-Methode** (家計簿, „Haushaltsbuch“). Der Name verbindet *Kakeibo* mit einem *OK* für deine Finanzen, und zusammen steckt darin auch ein *Book*.
 
-👉 **App öffnen:** https://DEINNAME.github.io/kakeibook/
+👉 **App öffnen:** https://retoro753.github.io/kakeibook/
 
 ### Was ist Kakeibo?
 
@@ -46,7 +46,7 @@ KakeiboOK erscheint dann mit eigenem Icon und startet wie eine normale App.
 
 ### Datenschutz
 
-Alle Einträge bleiben **ausschließlich auf deinem Gerät**. Es gibt kein Konto, keine Cloud, keine Cookies, kein Tracking und keine Werbung. Details stehen in der [Datenschutzerklärung](datenschutz.html).
+Alle Einträge bleiben **ausschließlich auf deinem Gerät**. Es gibt kein Konto, keine Cloud, keine Cookies, kein Tracking und keine Werbung.
 
 ### Technik
 
@@ -56,7 +56,6 @@ Eine Progressive Web App (PWA) aus reinem HTML, CSS und JavaScript, ohne Framewo
 
 KakeiboOK gibt allgemeine Spartipps und ersetzt keine Finanzberatung.
 
-[Impressum](impressum.html) · [Datenschutz](datenschutz.html)
 
 ---
 
@@ -64,7 +63,7 @@ KakeiboOK gibt allgemeine Spartipps und ersetzt keine Finanzberatung.
 
 **KakeiboOK** is a household ledger based on the Japanese **Kakeibo method** (家計簿, "household account book"). The name combines *Kakeibo* with an *OK* for your finances, and together it also spells *Book*.
 
-👉 **Open the app:** https://DEINNAME.github.io/kakeibook/
+👉 **Open the app:** https://retoro753.github.io/kakeibook/
 
 ### What is Kakeibo?
 
@@ -96,7 +95,7 @@ KakeiboOK then appears with its own icon and opens like a regular app.
 
 ### Privacy
 
-All entries stay **only on your device**. No account, no cloud, no cookies, no tracking and no ads. See the [privacy policy](privacy.html) for details.
+All entries stay **only on your device**. No account, no cloud, no cookies, no tracking and no ads. 
 
 ### Tech
 
@@ -106,4 +105,3 @@ A Progressive Web App (PWA) built with plain HTML, CSS and JavaScript, with no f
 
 KakeiboOK offers general saving tips and is not financial advice.
 
-[Legal notice](legal-notice.html) · [Privacy](privacy.html)
