@@ -103,6 +103,5 @@ A Progressive Web App (PWA) built with plain HTML, CSS and JavaScript, with no f
 
 ### Disclaimer
 
-```
 KakeiboOK offers general saving tips and is not financial advice.
 
