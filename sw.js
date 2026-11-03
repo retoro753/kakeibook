@@ -1,6 +1,6 @@
 // KakeiboOK – Service Worker für den Offline-Betrieb.
 // Bei jeder neuen Version die Nummer erhöhen, damit Nutzer das Update bekommen.
-const VERSION = "kakeibook-1.1.1";
+const VERSION = "kakeibook-1.1.2";
 const FILES = [
   "./", "./index.html", "./manifest.webmanifest",
   "./versions_changelog.html",

@@ -19,7 +19,7 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0}
 [hidden]{display:none!important}
 img{max-width:100%}
-/* Layout: ein Haushaltsbuch auf Washi-Papier. Linke Spalte = Monatsplan + Eintrag, rechte Spalte = Übersicht, Tipps, Buch. Vier Kategorien tragen ihr Kanji. */
+/* Layout: ein Haushaltsbuch auf Washi-Papier. Linke Spalte = Monatsplan + Eintrag, rechte Spalte = Übersicht, Tipps, Buch. */
 :root{
   --paper:#eef1f2; --sheet:#f9fafa; --ink:#1f2b4a; --ink-soft:#56627d; --rule:#d3d9e0;
   --hanko:#c2412d; --hanko-soft:#f6e1dc;
@@ -92,7 +92,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
 .cats{position:relative}
 .cats input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
 .cats label{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--rule);border-radius:8px;cursor:pointer;font-size:.72rem;color:var(--ink-soft);text-align:center}
-.cats label b{font-family:var(--f-display);font-size:1.25rem;color:var(--cc);font-weight:800}
+.cats label b{font-size:1.25rem;color:var(--cc);font-weight:400}
 .cats input:checked+label{border-color:var(--cc);box-shadow:inset 0 0 0 1px var(--cc);color:var(--ink)}
 .cats input:focus-visible+label{outline:2px solid var(--hanko);outline-offset:2px}
 .btn{background:var(--ink);color:var(--sheet);border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
@@ -116,7 +116,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
 .catgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 @media (max-width:620px){.catgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .cat{border-top:3px solid var(--cc);padding-top:8px;display:flex;flex-direction:column;gap:2px}
-.cat .kanji{font-family:var(--f-display);font-size:1.6rem;font-weight:800;color:var(--cc);line-height:1.1}
+.cat .cat-icon{font-size:1.6rem;line-height:1.1}
 .cat .name{font-weight:700;font-size:.9rem}
 .cat .num{font-size:1.05rem}
 .cat small{color:var(--ink-soft);font-size:.75rem}
@@ -144,7 +144,7 @@ th{text-align:left;font-weight:500;color:var(--ink-soft);font-size:.72rem;letter
 td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
 td.amt,th.amt{text-align:right}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:.78rem}
-.tag b{font-family:var(--f-display);color:var(--cc)}
+.tag b{color:var(--cc);font-weight:400}
 .rowact{display:flex;gap:4px;justify-content:flex-end}
 .mini{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:3px 8px;font-size:.75rem;cursor:pointer;white-space:nowrap}
 .mini:hover{border-color:var(--ink)}
@@ -279,10 +279,10 @@ input,select,textarea{font-size:16px}
       <section class="sheet" aria-labelledby="refH">
         <div class="sheet-head"><h2 id="refH" data-i="refH"></h2><span class="label" data-i="refSub"></span></div>
         <div class="qlist">
-          <div class="q"><span class="no">一</span><div><p><b data-i="q1"></b></p><p class="ans" id="a1"></p></div></div>
-          <div class="q"><span class="no">二</span><div><p><b data-i="q2"></b></p><p class="ans" id="a2"></p></div></div>
-          <div class="q"><span class="no">三</span><div><p><b data-i="q3"></b></p><p class="ans" id="a3"></p></div></div>
-          <div class="q"><span class="no">四</span><div class="field"><label for="reflect"><b style="color:var(--ink);font-size:.95rem" data-i="q4"></b></label>
+          <div class="q"><span class="no">1</span><div><p><b data-i="q1"></b></p><p class="ans" id="a1"></p></div></div>
+          <div class="q"><span class="no">2</span><div><p><b data-i="q2"></b></p><p class="ans" id="a2"></p></div></div>
+          <div class="q"><span class="no">3</span><div><p><b data-i="q3"></b></p><p class="ans" id="a3"></p></div></div>
+          <div class="q"><span class="no">4</span><div class="field"><label for="reflect"><b style="color:var(--ink);font-size:.95rem" data-i="q4"></b></label>
             <textarea id="reflect" data-i-ph="reflectPh"></textarea>
             <button class="btn ghost" id="saveReflect" style="align-self:flex-start" data-i="saveNote"></button>
             <div class="saved" id="reflectSaved" aria-live="polite"></div>
@@ -445,7 +445,7 @@ function setupLang(){
 }
 const eur={format:v=>money.format(v)};
 
-const CATS={surv:{k:"生",color:"--c-surv"},opt:{k:"選",color:"--c-opt"},cult:{k:"文",color:"--c-cult"},extra:{k:"外",color:"--c-extra"}};
+const CATS={surv:{icon:"🛒",color:"--c-surv"},opt:{icon:"🛍️",color:"--c-opt"},cult:{icon:"📚",color:"--c-cult"},extra:{icon:"🎁",color:"--c-extra"}};
 const ORDER=["surv","opt","cult","extra"];
 const cName=c=>T.cats[c][0], cDesc=c=>T.cats[c][1];
 const $=id=>document.getElementById(id);
@@ -485,9 +485,9 @@ function view(){
 
 // ================= Darstellung =================
 function catPicker(selected){
-  $("catPick").innerHTML=ORDER.map(c=>`<input type="radio" name="cat" id="cat_${c}" value="${c}" ${c===selected?"checked":""}><label for="cat_${c}" style="--cc:var(${CATS[c].color})"><b>${CATS[c].k}</b>${cName(c)}</label>`).join("");
+  $("catPick").innerHTML=ORDER.map(c=>`<input type="radio" name="cat" id="cat_${c}" value="${c}" ${c===selected?"checked":""}><label for="cat_${c}" style="--cc:var(${CATS[c].color})"><b aria-hidden="true">${CATS[c].icon}</b>${cName(c)}</label>`).join("");
   const f=$("filterCat").value;
-  $("filterCat").innerHTML=`<option value="">${T.allCats}</option>`+ORDER.map(c=>`<option value="${c}">${CATS[c].k} ${cName(c)}</option>`).join("");
+  $("filterCat").innerHTML=`<option value="">${T.allCats}</option>`+ORDER.map(c=>`<option value="${c}">${CATS[c].icon} ${cName(c)}</option>`).join("");
   $("filterCat").value=f||"";
 }
 
@@ -532,7 +532,7 @@ function render(){
 
   $("catGrid").innerHTML=ORDER.map(c=>{
     const pct=spent?Math.round(byCat[c]/spent*100):0;
-    return `<div class="cat" style="--cc:var(${CATS[c].color})"><span class="kanji">${CATS[c].k}</span><span class="name">${cName(c)}</span><span class="num">${eur.format(byCat[c])}</span><small>${pct}${lang==="de"?" %":"%"} · ${cDesc(c)}</small></div>`}).join("");
+    return `<div class="cat" style="--cc:var(${CATS[c].color})"><span class="cat-icon" aria-hidden="true">${CATS[c].icon}</span><span class="name">${cName(c)}</span><span class="num">${eur.format(byCat[c])}</span><small>${pct}${lang==="de"?" %":"%"} · ${cDesc(c)}</small></div>`}).join("");
 
   const wk=[0,0,0,0,0].map(()=>({t:0,c:{}}));
   list.forEach(e=>{const w=Math.min(4,Math.floor((+e.date.slice(8,10)-1)/7));wk[w].t+=e.amt;wk[w].c[e.cat]=(wk[w].c[e.cat]||0)+e.amt});
@@ -583,7 +583,7 @@ function renderRows(list){
   r.sort(s==="amt"?(a,b)=>b.amt-a.amt:(a,b)=>b.date.localeCompare(a.date));
   if(!r.length){$("rows").innerHTML=`<tr><td colspan="5" class="empty">${T.noRows}</td></tr>`;return}
   $("rows").innerHTML=r.map(e=>{const c=CATS[e.cat]?e.cat:"extra";
-    return `<tr><td class="num">${dayMonth.format(new Date(e.date+"T00:00:00Z"))}</td><td>${esc(e.desc)}${e.example?`<span class="ex">${T.example}</span>`:""}</td><td><span class="tag" style="--cc:var(${CATS[c].color})"><b>${CATS[c].k}</b>${cName(c)}</span></td><td class="amt num">${eur.format(e.amt)}</td><td><div class="rowact">${e.example?"":`<button class="mini del" data-del="${esc(e.id)}" aria-label="${T.delAria}">${T.del}</button>`}</div></td></tr>`}).join("");
+    return `<tr><td class="num">${dayMonth.format(new Date(e.date+"T00:00:00Z"))}</td><td>${esc(e.desc)}${e.example?`<span class="ex">${T.example}</span>`:""}</td><td><span class="tag" style="--cc:var(${CATS[c].color})"><b aria-hidden="true">${CATS[c].icon}</b>${cName(c)}</span></td><td class="amt num">${eur.format(e.amt)}</td><td><div class="rowact">${e.example?"":`<button class="mini del" data-del="${esc(e.id)}" aria-label="${T.delAria}">${T.del}</button>`}</div></td></tr>`}).join("");
 }
 
 // ================= Interaktion =================
