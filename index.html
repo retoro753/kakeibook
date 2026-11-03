@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>KakeiboOK</title>
+<meta name="description" content="KakeiboOK – das japanische Haushaltsbuch. The Japanese household ledger: plan, track, reflect, save.">
+<meta name="theme-color" content="#1f2b4a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="KakeiboOK">
+<style>
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: ein Haushaltsbuch auf Washi-Papier. Linke Spalte = Monatsplan + Eintrag, rechte Spalte = Übersicht, Tipps, Buch. Vier Kategorien tragen ihr Kanji. */
+:root{
+  --paper:#eef1f2; --sheet:#f9fafa; --ink:#1f2b4a; --ink-soft:#56627d; --rule:#d3d9e0;
+  --hanko:#c2412d; --hanko-soft:#f6e1dc;
+  --c-surv:#2f5d8a; --c-opt:#b5762a; --c-cult:#5d7a3a; --c-extra:#8a4a7a;
+  --ok:#3f7a52; --warn:#b5762a; --bad:#c2412d;
+  --f-display:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP","Noto Serif CJK JP",Georgia,serif;
+  --f-body:system-ui,-apple-system,"Hiragino Sans","Segoe UI",Roboto,sans-serif;
+  --f-num:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#141821; --sheet:#1b202b; --ink:#e3e7ef; --ink-soft:#9aa4b8; --rule:#2c3342;
+  --hanko:#e2664f; --hanko-soft:#3a2420;
+  --c-surv:#6f9fd0; --c-opt:#d9a05a; --c-cult:#93b66b; --c-extra:#c48ab5;
+  --ok:#74b787; --warn:#d9a05a; --bad:#e2664f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#141821; --sheet:#1b202b; --ink:#e3e7ef; --ink-soft:#9aa4b8; --rule:#2c3342;
+  --hanko:#e2664f; --hanko-soft:#3a2420;
+  --c-surv:#6f9fd0; --c-opt:#d9a05a; --c-cult:#93b66b; --c-extra:#c48ab5;
+  --ok:#74b787; --warn:#d9a05a; --bad:#e2664f; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance;letter-spacing:.01em}
+h2{font-size:1.15rem}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--hanko);outline-offset:2px}
+
+/* Kopf */
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;flex:none}
+.brand h1{font-size:1.7rem;letter-spacing:0}
+.brand h1 .ok{color:var(--hanko)}
+footer{border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;color:var(--ink-soft);font-size:.8rem}
+footer .flogo{display:flex;align-items:center;gap:8px}
+footer .flogo svg{width:22px;height:22px}
+footer details{max-width:100%}
+footer summary{cursor:pointer;color:var(--ink);font-weight:500}
+footer .info{margin-top:10px;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;max-width:44ch;color:var(--ink)}
+footer .info p{margin:0}
+.brand p{margin:0;color:var(--ink-soft);font-size:.85rem}
+.monthnav{display:flex;align-items:center;gap:6px}
+.monthnav strong{font-family:var(--f-display);font-size:1.15rem;min-width:9.5em;text-align:center}
+.iconbtn{border:1px solid var(--rule);background:var(--sheet);border-radius:8px;width:36px;height:36px;cursor:pointer}
+.iconbtn:hover{border-color:var(--ink)}
+
+.banner{background:var(--hanko-soft);border:1px dashed var(--hanko);border-radius:8px;padding:10px 14px;font-size:.9rem}
+.banner[hidden]{display:none}
+
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.sheet-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hint{color:var(--ink-soft);font-size:.82rem;margin:0}
+
+/* Formulare */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.8rem;color:var(--ink-soft);font-weight:500}
+input,select,textarea{background:var(--paper);border:1px solid var(--rule);border-radius:7px;padding:9px 10px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.cats{position:relative}
+.cats input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
+.cats label{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--rule);border-radius:8px;cursor:pointer;font-size:.72rem;color:var(--ink-soft);text-align:center}
+.cats label b{font-family:var(--f-display);font-size:1.25rem;color:var(--cc);font-weight:800}
+.cats input:checked+label{border-color:var(--cc);box-shadow:inset 0 0 0 1px var(--cc);color:var(--ink)}
+.cats input:focus-visible+label{outline:2px solid var(--hanko);outline-offset:2px}
+.btn{background:var(--ink);color:var(--sheet);border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn:hover{opacity:.9}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:500}
+.btn.ghost:hover{border-color:var(--ink)}
+.plan-out{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--rule);padding-top:10px}
+.plan-out .num{font-size:1.3rem;font-weight:500}
+
+/* Übersicht */
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.summary{grid-template-columns:minmax(0,1fr)}}
+.stat .num{font-size:1.45rem;display:block}
+.stat small{color:var(--ink-soft);font-size:.8rem}
+.budgetbar{height:14px;border-radius:7px;background:var(--paper);border:1px solid var(--rule);display:flex;overflow:hidden}
+.budgetbar span{height:100%}
+.pacemark{position:relative;height:0}
+.state{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.75rem;font-weight:700;border:1px solid currentColor}
+.state.ok{color:var(--ok)} .state.warn{color:var(--warn)} .state.bad{color:var(--bad)}
+
+.catgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.catgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cat{border-top:3px solid var(--cc);padding-top:8px;display:flex;flex-direction:column;gap:2px}
+.cat .kanji{font-family:var(--f-display);font-size:1.6rem;font-weight:800;color:var(--cc);line-height:1.1}
+.cat .name{font-weight:700;font-size:.9rem}
+.cat .num{font-size:1.05rem}
+.cat small{color:var(--ink-soft);font-size:.75rem}
+
+/* Wochen */
+.weeks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;align-items:end}
+.week{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.75rem;color:var(--ink-soft)}
+.week .stack{width:100%;max-width:56px;height:110px;display:flex;flex-direction:column-reverse;border-bottom:1px solid var(--ink);}
+.week .stack span{width:100%}
+.week .num{color:var(--ink);font-size:.78rem}
+
+/* Tipps */
+.tips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.tips li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:.9rem}
+.tips li i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;color:var(--sheet);background:var(--tc,var(--ink-soft));margin-top:1px}
+.tips li p{margin:0;max-width:65ch}
+.tips li b{font-weight:700}
+
+/* Buch */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.toolbar select{width:auto}
+.tablewrap{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.88rem}
+th{text-align:left;font-weight:500;color:var(--ink-soft);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--ink)}
+td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+td.amt,th.amt{text-align:right}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:.78rem}
+.tag b{font-family:var(--f-display);color:var(--cc)}
+.rowact{display:flex;gap:4px;justify-content:flex-end}
+.mini{border:1px solid var(--rule);background:transparent;border-radius:6px;padding:3px 8px;font-size:.75rem;cursor:pointer;white-space:nowrap}
+.mini:hover{border-color:var(--ink)}
+.mini.del:hover{border-color:var(--bad);color:var(--bad)}
+.ex{font-size:.65rem;color:var(--hanko);border:1px solid var(--hanko);border-radius:4px;padding:0 4px;margin-left:6px;vertical-align:1px}
+.empty{color:var(--ink-soft);text-align:center;padding:20px}
+
+/* KI-Vergleich */
+.compare{border:1px solid var(--rule);border-left:3px solid var(--hanko);border-radius:8px;padding:12px 14px;font-size:.9rem;display:flex;flex-direction:column;gap:8px}
+.compare ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.compare .hint{font-size:.75rem}
+
+/* Reflexion */
+.qlist{display:flex;flex-direction:column;gap:12px}
+.q{display:grid;grid-template-columns:auto 1fr;gap:10px}
+.q .no{font-family:var(--f-display);font-weight:800;color:var(--hanko);font-size:1.1rem;line-height:1.3}
+.q p{margin:0}
+.q .ans{color:var(--ink-soft);font-size:.88rem}
+.saved{font-size:.78rem;color:var(--ok);min-height:1.2em}
+@media (prefers-reduced-motion:no-preference){.budgetbar span,.week .stack span{transition:height .3s,width .3s}}
+input,select,textarea{font-size:16px}
+#installBanner{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.banner .x{background:none;border:0;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 2px;color:inherit}
+.backup{display:flex;flex-wrap:wrap;gap:6px}
+.links{display:flex;gap:14px;flex-wrap:wrap}
+.links a{color:var(--ink-soft)}
+.links a:hover{color:var(--ink)}
+.langsw{display:flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-left:6px}
+.langsw button{border:0;background:var(--sheet);padding:0 10px;height:34px;cursor:pointer;font-size:.78rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em}
+.langsw button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.monthnav{flex-wrap:wrap}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="6" width="42" height="52" rx="5" fill="var(--ink)"/><rect x="12" y="6" width="9" height="52" rx="4" fill="var(--ink-soft)"/><g fill="var(--paper)"><circle cx="16.5" cy="15" r="1.6"/><circle cx="16.5" cy="25" r="1.6"/><circle cx="16.5" cy="35" r="1.6"/><circle cx="16.5" cy="45" r="1.6"/></g><rect x="26" y="16" width="22" height="14" rx="2" fill="var(--paper)"/><path d="M31 23.5l3.2 3.2 6.6-7" fill="none" stroke="var(--hanko)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="45" y="6" width="4" height="52" fill="var(--hanko)"/><path d="M38 58v6l3-2.4 3 2.4v-6z" fill="var(--hanko)"/></svg>
+      <div><h1>Kakeibo<span class="ok">OK</span></h1><p data-i="tagline"></p></div>
+    </div>
+    <div class="monthnav">
+      <button class="iconbtn" id="prevMonth" data-i-aria="prevMonth">‹</button>
+      <strong id="monthLabel"></strong>
+      <button class="iconbtn" id="nextMonth" data-i-aria="nextMonth">›</button>
+      <div class="langsw" role="group" data-i-aria="language">
+        <button id="langDe" lang="de">DE</button><button id="langEn" lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner" id="exampleBanner" data-i="exampleBanner"></div>
+  <div class="banner" id="installBanner" hidden><span data-i="installBanner"></span><button class="x" id="closeInstall" data-i-aria="closeHint">×</button></div>
+
+  <div class="grid">
+    <div class="col">
+      <section class="sheet" aria-labelledby="planH">
+        <div class="sheet-head"><h2 id="planH" data-i="planH"></h2><span class="label" data-i="planWhen"></span></div>
+        <p class="hint" data-i="planHint"></p>
+        <div class="field"><label for="pIncome" data-i="income"></label><input id="pIncome" type="number" inputmode="decimal" min="0" step="0.01"></div>
+        <div class="field"><label for="pFixed" data-i="fixed"></label><input id="pFixed" type="number" inputmode="decimal" min="0" step="0.01"></div>
+        <div class="field"><label for="pSave" data-i="save"></label><input id="pSave" type="number" inputmode="decimal" min="0" step="0.01"></div>
+        <div class="plan-out"><span class="label" data-i="available"></span><span class="num" id="pAvail">–</span></div>
+        <div class="field"><label for="currency" data-i="currency"></label>
+          <select id="currency">
+            <option value="EUR">€ Euro</option><option value="USD">$ US Dollar</option><option value="GBP">£ British Pound</option>
+            <option value="CHF">CHF Franken</option><option value="CAD">$ Canadian Dollar</option><option value="AUD">$ Australian Dollar</option>
+          </select>
+        </div>
+        <button class="btn ghost" id="savePlan" data-i="savePlan"></button>
+        <div class="saved" id="planSaved" aria-live="polite"></div>
+      </section>
+
+      <section class="sheet" aria-labelledby="addH">
+        <div class="sheet-head"><h2 id="addH" data-i="addH"></h2></div>
+        <form id="addForm" class="col" style="gap:12px">
+          <div class="field"><label for="eDesc" data-i="what"></label><input id="eDesc" required maxlength="80" data-i-ph="whatPh"></div>
+          <div class="row2">
+            <div class="field"><label for="eAmt" id="amtLabel"></label><input id="eAmt" type="number" inputmode="decimal" min="0.01" step="0.01" required></div>
+            <div class="field"><label for="eDate" data-i="date"></label><input id="eDate" type="date" required></div>
+          </div>
+          <div class="field"><span class="label" style="text-transform:none;letter-spacing:0;font-size:.8rem" data-i="category"></span>
+            <div class="cats" id="catPick" role="radiogroup" data-i-aria="category"></div>
+          </div>
+          <button class="btn" type="submit" data-i="addBtn"></button>
+        </form>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="sheet" aria-labelledby="ovH">
+        <div class="sheet-head"><h2 id="ovH" data-i="ovH"></h2><span id="paceState" class="state ok"></span></div>
+        <div class="summary">
+          <div class="stat"><span class="label" data-i="spent"></span><span class="num" id="sSpent">–</span><small id="sSpentSub"></small></div>
+          <div class="stat"><span class="label" data-i="left"></span><span class="num" id="sLeft">–</span><small id="sLeftSub"></small></div>
+          <div class="stat"><span class="label" data-i="proj"></span><span class="num" id="sProj">–</span><small id="sProjSub"></small></div>
+        </div>
+        <div class="budgetbar" id="budgetBar" role="img" data-i-aria="budgetBar"></div>
+        <div class="catgrid" id="catGrid"></div>
+      </section>
+
+      <section class="sheet" aria-labelledby="wkH">
+        <div class="sheet-head"><h2 id="wkH" data-i="wkH"></h2><span class="label" data-i="wkSub"></span></div>
+        <div class="weeks" id="weeks"></div>
+      </section>
+
+      <section class="sheet" aria-labelledby="tipH">
+        <div class="sheet-head"><h2 id="tipH" data-i="tipH"></h2></div>
+        <ul class="tips" id="tips"></ul>
+      </section>
+
+      <section class="sheet" aria-labelledby="bookH">
+        <div class="sheet-head"><h2 id="bookH" data-i="bookH"></h2>
+          <div class="toolbar">
+            <select id="filterCat" data-i-aria="filter"></select>
+            <select id="sortBy" data-i-aria="sort"><option value="date" data-i="sortDate"></option><option value="amt" data-i="sortAmt"></option></select>
+          </div>
+        </div>
+        <div id="compareBox" hidden></div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th data-i="thDate"></th><th data-i="thDesc"></th><th data-i="thCat"></th><th class="amt" data-i="thAmt"></th><th class="amt"></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="sheet" aria-labelledby="refH">
+        <div class="sheet-head"><h2 id="refH" data-i="refH"></h2><span class="label" data-i="refSub"></span></div>
+        <div class="qlist">
+          <div class="q"><span class="no">一</span><div><p><b data-i="q1"></b></p><p class="ans" id="a1"></p></div></div>
+          <div class="q"><span class="no">二</span><div><p><b data-i="q2"></b></p><p class="ans" id="a2"></p></div></div>
+          <div class="q"><span class="no">三</span><div><p><b data-i="q3"></b></p><p class="ans" id="a3"></p></div></div>
+          <div class="q"><span class="no">四</span><div class="field"><label for="reflect"><b style="color:var(--ink);font-size:.95rem" data-i="q4"></b></label>
+            <textarea id="reflect" data-i-ph="reflectPh"></textarea>
+            <button class="btn ghost" id="saveReflect" style="align-self:flex-start" data-i="saveNote"></button>
+            <div class="saved" id="reflectSaved" aria-live="polite"></div>
+          </div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <span class="flogo"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="6" width="42" height="52" rx="5" fill="var(--ink-soft)"/><rect x="45" y="6" width="4" height="52" fill="var(--hanko)"/></svg>KakeiboOK · Version 1.1</span>
+    <details>
+      <summary>Info</summary>
+      <div class="info">
+        <p data-i="infoAbout"></p>
+        <p><span data-i="infoBy"></span> <span id="devName">(Name folgt)</span></p>
+        <p data-i="infoPrivacy"></p>
+        <p class="label" style="margin-top:6px" data-i="backupH"></p>
+        <p class="hint" data-i="backupHint"></p>
+        <div class="backup">
+          <button class="mini" id="exportBtn" data-i="exportBtn"></button>
+          <button class="mini" id="importBtn" data-i="importBtn"></button>
+          <button class="mini" id="csvBtn" data-i="csvBtn"></button>
+          <input type="file" id="importFile" accept=".json,application/json" hidden>
+        </div>
+        <div class="saved" id="backupMsg" aria-live="polite"></div>
+        <p class="hint" data-i="noAdvice"></p>
+      </div>
+    </details>
+    <nav class="links" data-i-aria="legal"><a id="linkImprint" href="impressum.html"></a><a id="linkPrivacy" href="datenschutz.html"></a></nav>
+  </footer>
+</div>
+
+<script>
+(function(){
+// ================= Texte (Deutsch / English) =================
+// Neue Texte immer in BEIDEN Sprachen eintragen.
+const L={
+de:{
+  tagline:"Das japanische Haushaltsbuch: planen, aufschreiben, nachdenken.",
+  prevMonth:"Vorheriger Monat",nextMonth:"Nächster Monat",language:"Sprache",closeHint:"Hinweis schließen",
+  exampleBanner:"Du siehst <b>Beispieldaten</b>. Trag deinen Monatsplan und deine erste Ausgabe ein, dann verschwinden sie und das Buch gehört dir.",
+  installBanner:"<b>Als App nutzen:</b> In Safari unten auf <b>Teilen</b> tippen, dann <b>„Zum Home-Bildschirm“</b>. KakeiboOK startet danach wie eine App und funktioniert auch offline.",
+  planH:"Monatsplan",planWhen:"Zu Monatsbeginn",planHint:"Kakeibo startet mit drei Fragen: Was kommt rein, was ist fest verplant, was willst du sparen?",
+  income:"Einnahmen (netto)",fixed:"Fixkosten (Miete, Versicherungen, Verträge)",save:"Sparziel",available:"Frei verfügbar",currency:"Währung",
+  savePlan:"Plan speichern",planSaved:"Plan gespeichert.",saveFail:"Speichern fehlgeschlagen. Bitte erneut versuchen.",
+  addH:"Ausgabe eintragen",what:"Wofür?",whatPh:"z. B. Wocheneinkauf Supermarkt",amount:"Betrag",date:"Datum",category:"Kategorie",addBtn:"Eintragen",
+  ovH:"Übersicht",spent:"Ausgegeben",left:"Noch verfügbar",proj:"Hochrechnung Monatsende",budgetBar:"Verteilung der Ausgaben im Verhältnis zum verfügbaren Budget",
+  entries:n=>n+(n===1?" Eintrag":" Einträge"),perDay:a=>"≈ "+a+" pro Tag übrig",fillPlan:"Monatsplan ausfüllen",
+  over:a=>"überschreitet Budget um "+a,under:a=>"bleibt "+a+" unter Budget",
+  stNoPlan:"Kein Plan",stOver:"Budget überschritten",stFast:"Tempo zu hoch",stOk:"Im Rahmen",
+  wkH:"Woche für Woche",wkSub:"Kakeibo rechnet wöchentlich ab",week:i=>"Woche "+i,range:(a,b)=>a+".–"+b+".",
+  tipH:"Tipps für diesen Monat",bookH:"Buch",filter:"Nach Kategorie filtern",sort:"Sortierung",allCats:"Alle Kategorien",sortDate:"Neueste zuerst",sortAmt:"Höchster Betrag",
+  thDate:"Datum",thDesc:"Beschreibung",thCat:"Kategorie",thAmt:"Betrag",example:"Beispiel",del:"Löschen",delAria:"Eintrag löschen",sure:"Wirklich?",
+  noRows:"Noch keine Einträge in diesem Monat. Trag deine erste Ausgabe ein.",
+  refH:"Monatsreflexion",refSub:"Die vier Kakeibo-Fragen",q1:"Wie viel Geld habe ich?",q2:"Wie viel möchte ich sparen?",q3:"Wie viel gebe ich aus?",q4:"Wie kann ich mich verbessern?",
+  reflectPh:"Was lief gut? Wo hast du aus Langeweile oder Stress gekauft? Was nimmst du dir für den nächsten Monat vor?",saveNote:"Notiz speichern",noteSaved:"Notiz gespeichert.",
+  a1:(i,f)=>i+" Einnahmen, davon "+f+" Fixkosten.",a2:(s,ok)=>s+" Sparziel. "+(ok?"Stand heute erreichbar.":"Gefährdet, weil die Ausgaben das freie Budget übersteigen."),
+  a3:(s,o)=>s+" bisher, "+o+" davon optional.",notYet:"Noch nicht eingetragen.",
+  addFail:"Die Ausgabe konnte nicht gespeichert werden. Der Speicher des Browsers ist voll oder gesperrt, zum Beispiel im privaten Modus.",delFail:"Löschen fehlgeschlagen.",
+  infoAbout:"<b>KakeiboOK</b> verbindet die japanische Kakeibo-Methode mit einem einfachen OK für deine Finanzen.",infoBy:"Entwickelt von",
+  infoPrivacy:"Deine Daten bleiben nur auf diesem Gerät. Es gibt kein Konto und keinen Server, der sie sieht.",
+  backupH:"Daten sichern",backupHint:"Sichere deine Einträge regelmäßig als Datei, zum Beispiel vor einem Handywechsel.",
+  exportBtn:"Sicherung speichern",importBtn:"Sicherung einlesen",csvBtn:"Als Tabelle (CSV)",noAdvice:"KakeiboOK gibt Tipps, ersetzt aber keine Finanzberatung.",
+  noData:"Noch keine eigenen Daten zum Sichern.",noExp:"Noch keine eigenen Ausgaben vorhanden.",backupDone:"Sicherung erstellt.",csvDone:"Tabelle erstellt.",
+  imported:n=>n+" Ausgaben eingelesen.",badFile:"Diese Datei ist keine KakeiboOK-Sicherung.",backupName:"Sicherung",csvName:"Ausgaben",
+  csvHead:["Datum","Beschreibung","Kategorie","Betrag"],legal:"Rechtliches",imprint:"Impressum",privacy:"Datenschutz",
+  cats:{surv:["Überleben","Lebensmittel, Drogerie, Fahrkarten"],opt:["Optional","Essen gehen, Shopping, Lieferdienste"],cult:["Kultur","Bücher, Kino, Kurse, Museen"],extra:["Extras","Unerwartetes: Reparaturen, Geschenke"]},
+  ex:["Wocheneinkauf Supermarkt","Monatsticket Nahverkehr","Lieferdienst Pizza","Streaming-Abo","Kaffee to go (5×)","Taschenbuch","Wocheneinkauf Supermarkt","Tanken","Sneaker im Sale","Fahrradreparatur","Kino","Drogerie"],
+  tips:{
+    noPlan:"Trag zuerst deine <b>Einnahmen, Fixkosten und dein Sparziel</b> ein. Erst dann weißt du, wie viel du wirklich frei ausgeben kannst.",
+    overBudget:a=>`Du liegst <b>${a} über dem freien Budget</b>. Stopp Optional-Käufe bis Monatsende oder nimm das Geld bewusst aus dem Sparziel.`,
+    pace:(p,d)=>`Bei deinem Tempo landest du bei <b>${p}</b>. Mit ${d} pro Tag bleibst du im Plan.`,
+    optShare:p=>`<b>${p} % deiner Ausgaben sind optional.</b> Kakeibo-Faustregel: Frag dich vor jedem Wunschkauf, ob du ihn auch in einer Woche noch willst.`,
+    extras:"Die Extras sind hoch. Plane nächsten Monat einen festen <b>Puffer für Unerwartetes</b> ein, damit er nicht das Sparziel frisst.",
+    delivery:(n,s)=>`${n}× Lieferdienst/Imbiss für ${s}. Selbst gekocht kostet so eine Mahlzeit meist ein Drittel. Probier einen <b>Meal-Prep-Sonntag</b>.`,
+    subs:s=>`Abos gefunden (${s}). Prüf, welche du diesen Monat wirklich genutzt hast. Viele lassen sich <b>pausieren oder rotieren</b> statt dauerhaft laufen.`,
+    coffee:(s,y)=>`Kaffee unterwegs: ${s}. Hochgerechnet aufs Jahr sind das rund <b>${y}</b>. Ein Thermobecher amortisiert sich schnell.`,
+    fuel:"Spritpreise schwanken über den Tag stark. Tanken am Abend und eine <b>Spritpreis-App</b> sparen oft mehrere Cent pro Liter.",
+    contracts:"Bei Strom, Gas, Handy, Internet und Versicherungen lohnt ein <b>jährlicher Tarifvergleich</b>. Neukundenpreise liegen oft deutlich unter Bestandstarifen.",
+    rule30:d=>`Für größere Wunschkäufe wie „${d}“ hilft die <b>30-Tage-Regel</b>: auf eine Liste schreiben, nach 30 Tagen neu entscheiden.`,
+    allGood:"Alles im Rahmen. Weiter so, und schreib am Monatsende deine Reflexion, solange du dich noch an die Käufe erinnerst.",
+    noCulture:"Kultur steht bei null. Kakeibo will nicht nur sparen: Plane bewusst etwas ein, das dich bereichert, etwa Bücherei, Museumstag oder einen Kurs."
+  }
+},
+en:{
+  tagline:"The Japanese household ledger: plan, write it down, reflect.",
+  prevMonth:"Previous month",nextMonth:"Next month",language:"Language",closeHint:"Close hint",
+  exampleBanner:"You are looking at <b>sample data</b>. Enter your monthly plan and your first expense, and the samples disappear. Then the book is yours.",
+  installBanner:"<b>Use it as an app:</b> In Safari, tap <b>Share</b>, then <b>“Add to Home Screen”</b>. KakeiboOK then opens like an app and also works offline.",
+  planH:"Monthly plan",planWhen:"At the start of the month",planHint:"Kakeibo starts with three questions: What comes in, what is already committed, and what do you want to save?",
+  income:"Income (after tax)",fixed:"Fixed costs (rent, insurance, contracts)",save:"Savings goal",available:"Free to spend",currency:"Currency",
+  savePlan:"Save plan",planSaved:"Plan saved.",saveFail:"Could not save. Please try again.",
+  addH:"Add an expense",what:"What for?",whatPh:"e.g. weekly groceries",amount:"Amount",date:"Date",category:"Category",addBtn:"Add",
+  ovH:"Overview",spent:"Spent",left:"Still available",proj:"Month-end forecast",budgetBar:"Spending by category compared with the available budget",
+  entries:n=>n+(n===1?" entry":" entries"),perDay:a=>"≈ "+a+" left per day",fillPlan:"Fill in your monthly plan",
+  over:a=>"over budget by "+a,under:a=>a+" under budget",
+  stNoPlan:"No plan",stOver:"Over budget",stFast:"Spending too fast",stOk:"On track",
+  wkH:"Week by week",wkSub:"Kakeibo balances the books weekly",week:i=>"Week "+i,range:(a,b)=>a+"–"+b,
+  tipH:"Tips for this month",bookH:"Ledger",filter:"Filter by category",sort:"Sort",allCats:"All categories",sortDate:"Newest first",sortAmt:"Highest amount",
+  thDate:"Date",thDesc:"Description",thCat:"Category",thAmt:"Amount",example:"Sample",del:"Delete",delAria:"Delete entry",sure:"Sure?",
+  noRows:"No entries this month yet. Add your first expense.",
+  refH:"Monthly reflection",refSub:"The four Kakeibo questions",q1:"How much money do I have?",q2:"How much do I want to save?",q3:"How much am I spending?",q4:"How can I improve?",
+  reflectPh:"What went well? Where did you buy out of boredom or stress? What will you do differently next month?",saveNote:"Save note",noteSaved:"Note saved.",
+  a1:(i,f)=>i+" income, of which "+f+" fixed costs.",a2:(s,ok)=>s+" savings goal. "+(ok?"Reachable as of today.":"At risk, because spending exceeds the free budget."),
+  a3:(s,o)=>s+" so far, "+o+" of it optional.",notYet:"Not entered yet.",
+  addFail:"The expense could not be saved. The browser storage is full or blocked, for example in private browsing.",delFail:"Could not delete.",
+  infoAbout:"<b>KakeiboOK</b> combines the Japanese Kakeibo method with a simple OK for your finances.",infoBy:"Made by",
+  infoPrivacy:"Your data stays on this device only. There is no account and no server that can see it.",
+  backupH:"Back up your data",backupHint:"Save your entries as a file regularly, for example before switching phones.",
+  exportBtn:"Save backup",importBtn:"Restore backup",csvBtn:"Export as table (CSV)",noAdvice:"KakeiboOK gives tips, not financial advice.",
+  noData:"No data of your own to back up yet.",noExp:"No expenses of your own yet.",backupDone:"Backup created.",csvDone:"Table created.",
+  imported:n=>n+" expenses restored.",badFile:"This file is not a KakeiboOK backup.",backupName:"Backup",csvName:"Expenses",
+  csvHead:["Date","Description","Category","Amount"],legal:"Legal",imprint:"Legal notice",privacy:"Privacy",
+  cats:{surv:["Survival","Groceries, toiletries, transport"],opt:["Optional","Eating out, shopping, delivery"],cult:["Culture","Books, cinema, courses, museums"],extra:["Extras","Unexpected: repairs, gifts"]},
+  ex:["Weekly groceries","Monthly transit pass","Pizza delivery","Streaming subscription","Coffee to go (5×)","Paperback","Weekly groceries","Fuel","Sneakers on sale","Bike repair","Cinema","Toiletries"],
+  tips:{
+    noPlan:"Start by entering your <b>income, fixed costs and savings goal</b>. Only then do you know how much you can really spend.",
+    overBudget:a=>`You are <b>${a} over your free budget</b>. Pause optional purchases until the end of the month, or consciously take the money from your savings goal.`,
+    pace:(p,d)=>`At your current pace you will reach <b>${p}</b>. Stay at ${d} per day to keep to your plan.`,
+    optShare:p=>`<b>${p}% of your spending is optional.</b> Kakeibo rule of thumb: before each wish purchase, ask whether you will still want it in a week.`,
+    extras:"Extras are high. Plan a fixed <b>buffer for the unexpected</b> next month so it does not eat into your savings.",
+    delivery:(n,s)=>`${n}× delivery or takeaway for ${s}. Cooking the same meal at home usually costs about a third. Try a <b>meal-prep Sunday</b>.`,
+    subs:s=>`Subscriptions found (${s}). Check which ones you actually used this month. Many can be <b>paused or rotated</b> instead of running all year.`,
+    coffee:(s,y)=>`Coffee on the go: ${s}. Over a year that adds up to about <b>${y}</b>. A travel mug pays for itself quickly.`,
+    fuel:"Fuel prices change a lot during the day. Filling up in the evening and using a <b>fuel price app</b> often saves a few cents per litre or gallon.",
+    contracts:"For electricity, gas, phone, internet and insurance, a <b>yearly price comparison</b> pays off. New-customer deals are often much cheaper than existing plans.",
+    rule30:d=>`For bigger wish purchases like “${d}”, try the <b>30-day rule</b>: put it on a list and decide again after 30 days.`,
+    allGood:"Everything is on track. Keep it up, and write your reflection at the end of the month while you still remember your purchases.",
+    noCulture:"Culture is at zero. Kakeibo is not only about saving: plan something that enriches you, like the library, a museum day or a course."
+  }
+}};
+
+// ================= Einstellungen =================
+const SETTINGS="kakeibook-settings";
+let settings={};
+try{settings=JSON.parse(localStorage.getItem(SETTINGS)||"{}")||{}}catch(e){}
+const navLang=(navigator.languages&&navigator.languages[0])||navigator.language||"de";
+let lang=settings.lang||(/^de\b/i.test(navLang)?"de":"en");
+const defaultCur=()=>{const n=navLang.toLowerCase();if(n.startsWith("de"))return /ch/.test(n)?"CHF":"EUR";
+  if(/-gb|-ie/.test(n))return n.endsWith("ie")?"EUR":"GBP";if(/-ca/.test(n))return "CAD";if(/-au/.test(n))return "AUD";if(/-us/.test(n))return "USD";return "EUR"};
+let currency=settings.currency||defaultCur();
+function saveSettings(){try{localStorage.setItem(SETTINGS,JSON.stringify({lang,currency}))}catch(e){}}
+
+let T,locale,money,dayMonth;
+function setupLang(){
+  T=L[lang];
+  locale=lang==="de"?"de-DE":(/^en-/i.test(navLang)?navLang:"en-GB");
+  money=new Intl.NumberFormat(locale,{style:"currency",currency});
+  dayMonth=new Intl.DateTimeFormat(locale,{day:"2-digit",month:"2-digit",timeZone:"UTC"});
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i]").forEach(el=>{el.innerHTML=T[el.dataset.i]});
+  document.querySelectorAll("[data-i-aria]").forEach(el=>el.setAttribute("aria-label",T[el.dataset.iAria]));
+  document.querySelectorAll("[data-i-ph]").forEach(el=>el.placeholder=T[el.dataset.iPh]);
+  $("amtLabel").textContent=T.amount+" ("+(money.formatToParts(0).find(p=>p.type==="currency")||{value:currency}).value+")";
+  $("linkImprint").textContent=T.imprint;$("linkImprint").href=lang==="de"?"impressum.html":"legal-notice.html";
+  $("linkPrivacy").textContent=T.privacy;$("linkPrivacy").href=lang==="de"?"datenschutz.html":"privacy.html";
+  $("langDe").setAttribute("aria-pressed",lang==="de");$("langEn").setAttribute("aria-pressed",lang==="en");
+  $("currency").value=currency;
+  const sel=document.querySelector('input[name="cat"]:checked');catPicker(sel?sel.value:"surv");
+}
+const eur={format:v=>money.format(v)};
+
+const CATS={surv:{k:"生",color:"--c-surv"},opt:{k:"選",color:"--c-opt"},cult:{k:"文",color:"--c-cult"},extra:{k:"外",color:"--c-extra"}};
+const ORDER=["surv","opt","cult","extra"];
+const cName=c=>T.cats[c][0], cDesc=c=>T.cats[c][1];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const today=new Date();
+let cur={y:today.getFullYear(),m:today.getMonth()};
+const mkey=()=>cur.y+"-"+String(cur.m+1).padStart(2,"0");
+const localISO=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+
+// ================= Daten =================
+let expenses=[];   // {id,desc,amt,date,cat}
+let months={};     // key -> {income,fixed,save,reflect}
+let loaded=false;
+
+function exampleData(){
+  const k=mkey(), d=n=>k+"-"+String(n).padStart(2,"0");
+  const rows=[[68.40,2,"surv"],[58,1,"surv"],[24.90,3,"opt"],[13.99,4,"opt"],[17.50,6,"opt"],[12,7,"cult"],[74.15,9,"surv"],[61.30,10,"surv"],[89.95,11,"opt"],[42,12,"extra"],[14.50,14,"cult"],[23.60,15,"surv"]];
+  return {months:{[k]:{income:2400,fixed:1050,save:300,reflect:""}},
+    expenses:rows.map((r,i)=>({id:"ex"+i,desc:T.ex[i],amt:r[0],date:d(r[1]),cat:r[2],example:true})).filter(e=>+e.date.slice(8)<=Math.max(15,today.getDate()))};
+}
+function hasReal(){return expenses.some(e=>!e.example)||Object.keys(months).length>0}
+
+const LS="kakeibook-v1";
+function lsLoad(){try{const r=JSON.parse(localStorage.getItem(LS)||"null");if(r){expenses=r.expenses||[];months=r.months||{}}}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({expenses,months}))}catch(e){}}
+function lsSaveChecked(){localStorage.setItem(LS,JSON.stringify({expenses,months}))}
+async function saveExpense(e){expenses.push(e);try{lsSaveChecked()}catch(err){expenses.pop();throw err}render()}
+async function deleteExpense(id){expenses=expenses.filter(e=>e.id!==id);lsSave();render()}
+async function saveMonth(k,data){months[k]=Object.assign({},months[k]||{},data);lsSaveChecked();render()}
+
+function view(){
+  if(!loaded) return {expenses:[],months:{}};
+  if(hasReal()) return {expenses,months};
+  return exampleData();
+}
+
+// ================= Darstellung =================
+function catPicker(selected){
+  $("catPick").innerHTML=ORDER.map(c=>`<input type="radio" name="cat" id="cat_${c}" value="${c}" ${c===selected?"checked":""}><label for="cat_${c}" style="--cc:var(${CATS[c].color})"><b>${CATS[c].k}</b>${cName(c)}</label>`).join("");
+  const f=$("filterCat").value;
+  $("filterCat").innerHTML=`<option value="">${T.allCats}</option>`+ORDER.map(c=>`<option value="${c}">${CATS[c].k} ${cName(c)}</option>`).join("");
+  $("filterCat").value=f||"";
+}
+
+function render(){
+  const V=view(), k=mkey();
+  const isEx=loaded&&!hasReal();
+  $("exampleBanner").hidden=!isEx;
+  $("monthLabel").textContent=new Intl.DateTimeFormat(locale,{month:"long",year:"numeric"}).format(new Date(cur.y,cur.m,1));
+  const plan=V.months[k]||{};
+  [["pIncome","income"],["pFixed","fixed"],["pSave","save"]].forEach(([id,f])=>{if(document.activeElement!==$(id))$(id).value=plan[f]??""});
+  if(document.activeElement!==$("reflect"))$("reflect").value=plan.reflect||"";
+  const income=+plan.income||0, fixed=+plan.fixed||0, save=+plan.save||0;
+  const avail=income-fixed-save;
+  $("pAvail").textContent=income?eur.format(avail):"–";
+
+  const list=V.expenses.filter(e=>e.date&&e.date.startsWith(k));
+  const spent=list.reduce((s,e)=>s+e.amt,0);
+  const byCat={};ORDER.forEach(c=>byCat[c]=0);list.forEach(e=>byCat[e.cat]=(byCat[e.cat]||0)+e.amt);
+
+  const dim=new Date(cur.y,cur.m+1,0).getDate();
+  const isCurMonth=cur.y===today.getFullYear()&&cur.m===today.getMonth();
+  const isPast=new Date(cur.y,cur.m+1,0)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  const lastDay=list.reduce((m,e)=>Math.max(m,+e.date.slice(8,10)),0);
+  const elapsed=isCurMonth?Math.max(today.getDate(),lastDay):(isPast?dim:0);
+  const proj=elapsed?spent/elapsed*dim:0;
+
+  $("sSpent").textContent=eur.format(spent);
+  $("sSpentSub").textContent=T.entries(list.length);
+  $("sLeft").textContent=income?eur.format(avail-spent):"–";
+  $("sLeftSub").textContent=income?(isCurMonth?T.perDay(eur.format(Math.max(0,avail-spent)/Math.max(1,dim-elapsed+1))):""):T.fillPlan;
+  $("sProj").textContent=elapsed?eur.format(proj):"–";
+  $("sProjSub").textContent=elapsed&&income?(proj>avail?T.over(eur.format(proj-avail)):T.under(eur.format(avail-proj))):"";
+
+  const st=$("paceState");
+  if(!income){st.className="state warn";st.textContent=T.stNoPlan}
+  else if(spent>avail){st.className="state bad";st.textContent=T.stOver}
+  else if(proj>avail){st.className="state warn";st.textContent=T.stFast}
+  else{st.className="state ok";st.textContent=T.stOk}
+
+  const base=Math.max(avail,spent,1);
+  $("budgetBar").innerHTML=ORDER.map(c=>`<span title="${esc(cName(c))}: ${eur.format(byCat[c])}" style="width:${byCat[c]/base*100}%;background:var(${CATS[c].color})"></span>`).join("");
+
+  $("catGrid").innerHTML=ORDER.map(c=>{
+    const pct=spent?Math.round(byCat[c]/spent*100):0;
+    return `<div class="cat" style="--cc:var(${CATS[c].color})"><span class="kanji">${CATS[c].k}</span><span class="name">${cName(c)}</span><span class="num">${eur.format(byCat[c])}</span><small>${pct}${lang==="de"?" %":"%"} · ${cDesc(c)}</small></div>`}).join("");
+
+  const wk=[0,0,0,0,0].map(()=>({t:0,c:{}}));
+  list.forEach(e=>{const w=Math.min(4,Math.floor((+e.date.slice(8,10)-1)/7));wk[w].t+=e.amt;wk[w].c[e.cat]=(wk[w].c[e.cat]||0)+e.amt});
+  const wmax=Math.max(...wk.map(w=>w.t),avail>0?avail/4.3:1,1);
+  const whole=new Intl.NumberFormat(locale,{style:"currency",currency,maximumFractionDigits:0});
+  $("weeks").innerHTML=wk.map((w,i)=>`<div class="week"><span class="num">${w.t?whole.format(w.t):"–"}</span><div class="stack">${ORDER.map(c=>`<span style="height:${(w.c[c]||0)/wmax*100}%;background:var(${CATS[c].color})"></span>`).join("")}</div><span>${T.week(i+1)}</span><small>${T.range(i*7+1,i===4?dim:Math.min(dim,i*7+7))}</small></div>`).join("");
+
+  renderTips(list,byCat,spent,avail,income,proj,elapsed);
+  renderRows(list);
+
+  $("a1").textContent=income?T.a1(eur.format(income),eur.format(fixed)):T.notYet;
+  $("a2").textContent=income?T.a2(eur.format(save),spent<=avail):T.notYet;
+  $("a3").textContent=T.a3(eur.format(spent),eur.format(byCat.opt));
+}
+
+function renderTips(list,byCat,spent,avail,income,proj,elapsed){
+  const out=[];const add=(tone,html)=>out.push({tone,html});const X=T.tips;
+  const has=re=>list.filter(e=>re.test(e.desc));
+  const sum=a=>a.reduce((s,e)=>s+e.amt,0);
+  if(!income) add("warn",X.noPlan);
+  else if(spent>avail) add("bad",X.overBudget(eur.format(spent-avail)));
+  else if(elapsed&&proj>avail) add("warn",X.pace(eur.format(proj),eur.format((avail-spent)/Math.max(1,new Date(cur.y,cur.m+1,0).getDate()-elapsed+1))));
+  if(spent&&byCat.opt/spent>.3) add("warn",X.optShare(Math.round(byCat.opt/spent*100)));
+  if(spent&&byCat.extra/spent>.15) add("warn",X.extras);
+  // Stichwörter auf Deutsch und Englisch
+  const deliv=has(/liefer|pizza|uber ?eats|wolt|takeaway|take-away|takeout|döner|imbiss|delivery|deliveroo|doordash|grubhub|just ?eat/i);
+  if(deliv.length) add("tip",X.delivery(deliv.length,eur.format(sum(deliv))));
+  const abo=has(/abo\b|abo-|netflix|spotify|disney|prime|dazn|streaming|app store|abonnement|subscription|hulu|max\b|youtube premium/i);
+  if(abo.length) add("tip",X.subs(eur.format(sum(abo))));
+  const cof=has(/kaffee|coffee|latte|cappuccino|starbucks|bäcker|costa|dunkin/i);
+  if(cof.length) add("tip",X.coffee(eur.format(sum(cof)),eur.format(sum(cof)*12)));
+  const fuel=has(/tank|benzin|diesel|sprit|fuel|petrol|gasoline|gas station/i);
+  if(fuel.length) add("tip",X.fuel);
+  const energy=has(/strom|\bgas\b|energie|handy|mobilfunk|internet|dsl|versicherung|electric|energy|phone plan|mobile|broadband|insurance|utility/i);
+  if(energy.length) add("tip",X.contracts);
+  const big=list.filter(e=>e.cat==="opt"&&e.amt>=50);
+  if(big.length) add("tip",X.rule30(esc(big[0].desc)));
+  if(!out.length) add("ok",X.allGood);
+  if(spent&&byCat.cult===0) add("ok",X.noCulture);
+  const ic={warn:["!","--warn"],bad:["!","--bad"],tip:["$","--hanko"],ok:["✓","--ok"]};
+  const sym=(money.formatToParts(0).find(p=>p.type==="currency")||{value:"€"}).value;ic.tip[0]=sym.length<=2?sym:"€";
+  $("tips").innerHTML=out.map(t=>`<li style="--tc:var(${ic[t.tone][1]})"><i aria-hidden="true">${esc(ic[t.tone][0])}</i><p>${t.html}</p></li>`).join("");
+}
+
+function renderRows(list){
+  const f=$("filterCat").value, s=$("sortBy").value;
+  let r=list.filter(e=>!f||e.cat===f);
+  r.sort(s==="amt"?(a,b)=>b.amt-a.amt:(a,b)=>b.date.localeCompare(a.date));
+  if(!r.length){$("rows").innerHTML=`<tr><td colspan="5" class="empty">${T.noRows}</td></tr>`;return}
+  $("rows").innerHTML=r.map(e=>{const c=CATS[e.cat]?e.cat:"extra";
+    return `<tr><td class="num">${dayMonth.format(new Date(e.date+"T00:00:00Z"))}</td><td>${esc(e.desc)}${e.example?`<span class="ex">${T.example}</span>`:""}</td><td><span class="tag" style="--cc:var(${CATS[c].color})"><b>${CATS[c].k}</b>${cName(c)}</span></td><td class="amt num">${eur.format(e.amt)}</td><td><div class="rowact">${e.example?"":`<button class="mini del" data-del="${esc(e.id)}" aria-label="${T.delAria}">${T.del}</button>`}</div></td></tr>`}).join("");
+}
+
+// ================= Interaktion =================
+$("eDate").value=localISO(today);
+setupLang();
+$("langDe").onclick=()=>{lang="de";saveSettings();setupLang();render()};
+$("langEn").onclick=()=>{lang="en";saveSettings();setupLang();render()};
+$("currency").onchange=()=>{currency=$("currency").value;saveSettings();setupLang();render()};
+$("prevMonth").onclick=()=>{cur.m--;if(cur.m<0){cur.m=11;cur.y--}render()};
+$("nextMonth").onclick=()=>{cur.m++;if(cur.m>11){cur.m=0;cur.y++}render()};
+$("filterCat").onchange=render;$("sortBy").onchange=render;
+["pIncome","pFixed","pSave"].forEach(id=>$(id).addEventListener("input",()=>{
+  const v=id=>+$(id).value||0;const a=v("pIncome")-v("pFixed")-v("pSave");$("pAvail").textContent=v("pIncome")?eur.format(a):"–"}));
+
+function flash(id,msg){$(id).textContent=msg;setTimeout(()=>{$(id).textContent=""},2500)}
+$("savePlan").onclick=async()=>{
+  try{await saveMonth(mkey(),{income:+$("pIncome").value||0,fixed:+$("pFixed").value||0,save:+$("pSave").value||0,reflect:(months[mkey()]||{}).reflect||""});flash("planSaved",T.planSaved)}
+  catch(e){flash("planSaved",T.saveFail)}
+};
+$("saveReflect").onclick=async()=>{
+  try{await saveMonth(mkey(),{reflect:$("reflect").value.slice(0,4000)});flash("reflectSaved",T.noteSaved)}
+  catch(e){flash("reflectSaved",T.saveFail)}
+};
+$("addForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const e={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),desc:$("eDesc").value.trim(),amt:Math.round(parseFloat($("eAmt").value)*100)/100,date:$("eDate").value,cat:document.querySelector('input[name="cat"]:checked').value};
+  if(!e.desc||!(e.amt>0)||!e.date)return;
+  try{await saveExpense(e);$("eDesc").value="";$("eAmt").value="";$("eDesc").focus();
+    const [y,m]=e.date.split("-");cur={y:+y,m:+m-1};render()}
+  catch(err){alertBox(T.addFail)}
+});
+function alertBox(msg){const b=$("compareBox");b.hidden=false;b.innerHTML=`<div class="compare">${esc(msg)}</div>`}
+
+$("rows").addEventListener("click",async ev=>{
+  const btn=ev.target.closest("[data-del]");if(!btn)return;
+  if(btn.dataset.confirm){try{await deleteExpense(btn.dataset.del)}catch(e){alertBox(T.delFail)}}
+  else{btn.dataset.confirm="1";btn.textContent=T.sure;setTimeout(()=>{if(btn.isConnected){delete btn.dataset.confirm;btn.textContent=T.del}},3000)}
+});
+
+// ================= Start =================
+lsLoad();loaded=true;render();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+// Installationshinweis für iPhone/iPad in Safari
+(function(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const standalone=window.navigator.standalone===true||matchMedia("(display-mode: standalone)").matches;
+  let dismissed=false;try{dismissed=localStorage.getItem("kakeibook-install-hint")==="1"}catch(e){}
+  if(ios&&!standalone&&!dismissed)$("installBanner").hidden=false;
+  $("closeInstall").onclick=()=>{$("installBanner").hidden=true;try{localStorage.setItem("kakeibook-install-hint","1")}catch(e){}};
+})();
+
+// Datensicherung
+async function giveFile(name,type,text){
+  const blob=new Blob([text],{type});
+  try{const file=new File([blob],name,{type});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return true}}catch(e){if(e&&e.name==="AbortError")return false}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return true;
+}
+const stamp=()=>localISO(new Date());
+$("exportBtn").onclick=async()=>{
+  if(!hasReal()){flash("backupMsg",T.noData);return}
+  const ok=await giveFile("KakeiboOK-"+T.backupName+"-"+stamp()+".json","application/json",JSON.stringify({app:"KakeiboOK",format:1,exported:new Date().toISOString(),currency,expenses,months},null,1));
+  if(ok)flash("backupMsg",T.backupDone);
+};
+$("csvBtn").onclick=async()=>{
+  if(!expenses.length){flash("backupMsg",T.noExp);return}
+  const de=lang==="de", sep=de?";":",";
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const rows=[T.csvHead.concat(de?[]:[]).join(sep)].concat(expenses.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[e.date,q(e.desc),q(cName(CATS[e.cat]?e.cat:"extra")),de?e.amt.toFixed(2).replace(".",","):e.amt.toFixed(2)].join(sep)));
+  const ok=await giveFile("KakeiboOK-"+T.csvName+"-"+stamp()+".csv","text/csv","﻿"+rows.join("\r\n"));
+  if(ok)flash("backupMsg",T.csvDone);
+};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=async ev=>{
+  const f=ev.target.files&&ev.target.files[0];ev.target.value="";if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d||d.app!=="KakeiboOK"||!Array.isArray(d.expenses))throw new Error("format");
+    const ids=new Set(expenses.map(e=>e.id));let added=0;
+    d.expenses.forEach(e=>{if(e&&e.id&&!ids.has(e.id)&&typeof e.date==="string"&&+e.amt>0){expenses.push({id:String(e.id),desc:String(e.desc||"").slice(0,80),amt:+e.amt,date:e.date.slice(0,10),cat:CATS[e.cat]?e.cat:"extra"});ids.add(e.id);added++}});
+    Object.entries(d.months||{}).forEach(([k,v])=>{if(/^\d{4}-\d{2}$/.test(k)&&v)months[k]=Object.assign({},months[k]||{},{income:+v.income||0,fixed:+v.fixed||0,save:+v.save||0,reflect:String(v.reflect||"").slice(0,4000)})});
+    if(d.currency&&[...$("currency").options].some(o=>o.value===d.currency)&&!settings.currency){currency=d.currency;saveSettings();setupLang()}
+    lsSaveChecked();render();flash("backupMsg",T.imported(added));
+  }catch(e){flash("backupMsg",T.badFile)}
+};
+
+// Offline-Betrieb
+if("serviceWorker" in navigator&&location.protocol!=="file:"){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+})();
+</script>
+</body>
+</html>
