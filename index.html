@@ -6,6 +6,8 @@
 <title>KakeiboOK</title>
 <meta name="description" content="KakeiboOK – das japanische Haushaltsbuch. The Japanese household ledger: plan, track, reflect, save.">
 <meta name="theme-color" content="#1f2b4a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -334,7 +336,7 @@ de:{
   addH:"Ausgabe eintragen",what:"Wofür?",whatPh:"z. B. Wocheneinkauf Supermarkt",amount:"Betrag",date:"Datum",category:"Kategorie",addBtn:"Eintragen",
   ovH:"Übersicht",spent:"Ausgegeben",left:"Noch verfügbar",proj:"Hochrechnung Monatsende",budgetBar:"Verteilung der Ausgaben im Verhältnis zum verfügbaren Budget",
   entries:n=>n+(n===1?" Eintrag":" Einträge"),perDay:a=>"≈ "+a+" pro Tag übrig",fillPlan:"Monatsplan ausfüllen",
-  backupShortcut:"Daten sichern",versionLink:"Version 1.2",
+  backupShortcut:"Daten sichern",versionLink:"Version 1.2.1",
   over:a=>"überschreitet Budget um "+a,under:a=>"bleibt "+a+" unter Budget",
   stNoPlan:"Kein Plan",stOver:"Budget überschritten",stFast:"Tempo zu hoch",stOk:"Im Rahmen",
   wkH:"Woche für Woche",wkSub:"Kakeibo rechnet wöchentlich ab",week:i=>"Woche "+i,range:(a,b)=>a+".–"+b+".",
@@ -382,7 +384,7 @@ en:{
   addH:"Add an expense",what:"What for?",whatPh:"e.g. weekly groceries",amount:"Amount",date:"Date",category:"Category",addBtn:"Add",
   ovH:"Overview",spent:"Spent",left:"Still available",proj:"Month-end forecast",budgetBar:"Spending by category compared with the available budget",
   entries:n=>n+(n===1?" entry":" entries"),perDay:a=>"≈ "+a+" left per day",fillPlan:"Fill in your monthly plan",
-  backupShortcut:"Back up data",versionLink:"Version 1.2",
+  backupShortcut:"Back up data",versionLink:"Version 1.2.1",
   over:a=>"over budget by "+a,under:a=>a+" under budget",
   stNoPlan:"No plan",stOver:"Over budget",stFast:"Spending too fast",stOk:"On track",
   wkH:"Week by week",wkSub:"Kakeibo balances the books weekly",week:i=>"Week "+i,range:(a,b)=>a+"–"+b,
@@ -524,6 +526,24 @@ const cName=c=>T.cats[c][0], cDesc=c=>T.cats[c][1];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+// ================= Eingaben prüfen =================
+// Alles, was aus dem Speicher oder aus einer Sicherungsdatei kommt, wird hier geprüft.
+// Kaputte oder manipulierte Einträge dürfen die App nicht lahmlegen.
+const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const isCat=c=>typeof c==="string"&&own(CATS,c);
+const MAX_AMT=1e9, MAX_IMPORT=5*1024*1024;
+const okAmt=v=>typeof v==="number"&&Number.isFinite(v)&&v>0&&v<=MAX_AMT;
+const okDate=s=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(Date.parse(s+"T00:00:00Z"))&&new Date(s+"T00:00:00Z").toISOString().slice(0,10)===s;
+const okMonthKey=k=>/^\d{4}-(0[1-9]|1[0-2])$/.test(k);
+const num=v=>{v=+v;return Number.isFinite(v)&&v>=0&&v<=MAX_AMT?v:0};
+function cleanExpense(e){
+  if(!e||typeof e!=="object")return null;
+  const amt=Math.round(+e.amt*100)/100, id=String(e.id??"").slice(0,40);
+  if(!id||!okAmt(amt)||!okDate(e.date))return null;
+  return {id,desc:String(e.desc??"").slice(0,80),amt,date:e.date,cat:isCat(e.cat)?e.cat:"extra"};
+}
+const cleanMonth=v=>({income:num(v.income),fixed:num(v.fixed),save:num(v.save),reflect:String(v.reflect??"").slice(0,4000)});
+
 const today=new Date();
 let cur={y:today.getFullYear(),m:today.getMonth()};
 const mkey=()=>cur.y+"-"+String(cur.m+1).padStart(2,"0");
@@ -543,7 +563,9 @@ function exampleData(){
 function hasReal(){return expenses.some(e=>!e.example)||Object.keys(months).length>0}
 
 const LS="kakeibook-v1";
-function lsLoad(){try{const r=JSON.parse(localStorage.getItem(LS)||"null");if(r){expenses=r.expenses||[];months=r.months||{}}}catch(e){}}
+function lsLoad(){try{const r=JSON.parse(localStorage.getItem(LS)||"null");if(r&&typeof r==="object"){
+  expenses=(Array.isArray(r.expenses)?r.expenses:[]).map(cleanExpense).filter(Boolean);
+  months={};if(r.months&&typeof r.months==="object")Object.entries(r.months).forEach(([k,v])=>{if(okMonthKey(k)&&v&&typeof v==="object")months[k]=cleanMonth(v)})}}catch(e){}}
 function lsSave(){try{localStorage.setItem(LS,JSON.stringify({expenses,months}))}catch(e){}}
 function lsSaveChecked(){localStorage.setItem(LS,JSON.stringify({expenses,months}))}
 async function saveExpense(e){expenses.push(e);try{lsSaveChecked()}catch(err){expenses.pop();throw err}render()}
@@ -655,7 +677,7 @@ function renderRows(list){
   let r=list.filter(e=>!f||e.cat===f);
   r.sort(s==="amt"?(a,b)=>b.amt-a.amt:(a,b)=>b.date.localeCompare(a.date));
   if(!r.length){$("rows").innerHTML=`<tr><td colspan="5" class="empty">${T.noRows}</td></tr>`;return}
-  $("rows").innerHTML=r.map(e=>{const c=CATS[e.cat]?e.cat:"extra";
+  $("rows").innerHTML=r.map(e=>{const c=isCat(e.cat)?e.cat:"extra";
     return `<tr><td class="num">${dayMonth.format(new Date(e.date+"T00:00:00Z"))}</td><td>${esc(e.desc)}${e.example?`<span class="ex">${T.example}</span>`:""}</td><td><span class="tag" style="--cc:var(${CATS[c].color})">${CATS[c].k}${cName(c)}</span></td><td class="amt num">${eur.format(e.amt)}</td><td><div class="rowact">${e.example?"":`<button class="mini del" data-del="${esc(e.id)}" aria-label="${T.delAria}">${T.del}</button>`}</div></td></tr>`}).join("");
 }
 
@@ -678,7 +700,7 @@ $("filterCat").onchange=render;$("sortBy").onchange=render;
 
 function flash(id,msg){$(id).textContent=msg;setTimeout(()=>{$(id).textContent=""},2500)}
 $("savePlan").onclick=async()=>{
-  try{await saveMonth(mkey(),{income:+$("pIncome").value||0,fixed:+$("pFixed").value||0,save:+$("pSave").value||0,reflect:(months[mkey()]||{}).reflect||""});flash("planSaved",T.planSaved)}
+  try{await saveMonth(mkey(),{income:num($("pIncome").value),fixed:num($("pFixed").value),save:num($("pSave").value),reflect:(months[mkey()]||{}).reflect||""});flash("planSaved",T.planSaved)}
   catch(e){flash("planSaved",T.saveFail)}
 };
 $("saveReflect").onclick=async()=>{
@@ -688,7 +710,7 @@ $("saveReflect").onclick=async()=>{
 $("addForm").addEventListener("submit",async ev=>{
   ev.preventDefault();
   const e={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),desc:$("eDesc").value.trim(),amt:Math.round(parseFloat($("eAmt").value)*100)/100,date:$("eDate").value,cat:document.querySelector('input[name="cat"]:checked').value};
-  if(!e.desc||!(e.amt>0)||!e.date)return;
+  if(!e.desc||!okAmt(e.amt)||!okDate(e.date)||!isCat(e.cat))return;
   try{await saveExpense(e);$("eDesc").value="";$("eAmt").value="";$("eDesc").focus();
     const [y,m]=e.date.split("-");cur={y:+y,m:+m-1};render()}
   catch(err){alertBox(T.addFail)}
@@ -732,23 +754,26 @@ $("exportBtn").onclick=async()=>{
 $("csvBtn").onclick=async()=>{
   if(!expenses.length){flash("backupMsg",T.noExp);return}
   const de=lang==="de", sep=de?";":",";
-  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
-  const rows=[T.csvHead.concat(de?[]:[]).join(sep)].concat(expenses.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[e.date,q(e.desc),q(cName(CATS[e.cat]?e.cat:"extra")),de?e.amt.toFixed(2).replace(".",","):e.amt.toFixed(2)].join(sep)));
+  // Zellen, die mit = + - @ beginnen, würde Excel/LibreOffice als Formel ausführen (CSV-Injection).
+  const q=v=>{v=String(v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+  const rows=[T.csvHead.concat(de?[]:[]).join(sep)].concat(expenses.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[q(e.date),q(e.desc),q(cName(isCat(e.cat)?e.cat:"extra")),de?e.amt.toFixed(2).replace(".",","):e.amt.toFixed(2)].join(sep)));
   const ok=await giveFile("KakeiboOK-"+T.csvName+"-"+stamp()+".csv","text/csv","﻿"+rows.join("\r\n"));
   if(ok)flash("backupMsg",T.csvDone);
 };
 $("importBtn").onclick=()=>$("importFile").click();
 $("importFile").onchange=async ev=>{
   const f=ev.target.files&&ev.target.files[0];ev.target.value="";if(!f)return;
+  if(f.size>MAX_IMPORT){flash("backupMsg",T.badFile);return}
+  const backup={expenses:expenses.slice(),months:Object.assign({},months)};
   try{
     const d=JSON.parse(await f.text());
     if(!d||d.app!=="KakeiboOK"||!Array.isArray(d.expenses))throw new Error("format");
     const ids=new Set(expenses.map(e=>e.id));let added=0;
-    d.expenses.forEach(e=>{if(e&&e.id&&!ids.has(e.id)&&typeof e.date==="string"&&+e.amt>0){expenses.push({id:String(e.id),desc:String(e.desc||"").slice(0,80),amt:+e.amt,date:e.date.slice(0,10),cat:CATS[e.cat]?e.cat:"extra"});ids.add(e.id);added++}});
-    Object.entries(d.months||{}).forEach(([k,v])=>{if(/^\d{4}-\d{2}$/.test(k)&&v)months[k]=Object.assign({},months[k]||{},{income:+v.income||0,fixed:+v.fixed||0,save:+v.save||0,reflect:String(v.reflect||"").slice(0,4000)})});
+    d.expenses.forEach(raw=>{const e=cleanExpense(raw);if(e&&!ids.has(e.id)){expenses.push(e);ids.add(e.id);added++}});
+    if(d.months&&typeof d.months==="object")Object.entries(d.months).forEach(([k,v])=>{if(okMonthKey(k)&&v&&typeof v==="object")months[k]=Object.assign({},months[k]||{},cleanMonth(v))});
     if(d.currency&&[...$("currency").options].some(o=>o.value===d.currency)&&!settings.currency){currency=d.currency;saveSettings();setupLang()}
     lsSaveChecked();render();flash("backupMsg",T.imported(added));
-  }catch(e){flash("backupMsg",T.badFile)}
+  }catch(e){expenses=backup.expenses;months=backup.months;lsSave();render();flash("backupMsg",T.badFile)}
 };
 
 // Offline-Betrieb
