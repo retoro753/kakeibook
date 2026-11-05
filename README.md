@@ -56,6 +56,10 @@ Eine Progressive Web App (PWA) aus reinem HTML, CSS und JavaScript, **ohne Frame
 
 KakeiboOK gibt allgemeine Spartipps und ersetzt keine Finanzberatung.
 
+### Lizenz
+
+© 2026 Retoro. Alle Rechte vorbehalten. Die App darf kostenlos genutzt werden. Kopieren, Verändern, Weitergeben und jede kommerzielle Nutzung des Codes sind ohne meine schriftliche Erlaubnis nicht gestattet. Details stehen in der Datei [LICENSE](LICENSE).
+
 
 ---
 
@@ -104,4 +108,8 @@ A Progressive Web App (PWA) built with plain HTML, CSS and JavaScript, with no f
 ### Disclaimer
 
 KakeiboOK offers general saving tips and is not financial advice.
+
+### License
+
+© 2026 Retoro. All rights reserved. You may use the app free of charge. Copying, modifying, distributing or any commercial use of the code is not permitted without my written permission. See [LICENSE](LICENSE) for details.
 
